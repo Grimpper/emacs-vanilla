@@ -1,0 +1,709 @@
+#+title: Custom Vanilla Config
+#+author: Sergio Pastor Pérez
+#+startup: showeverything
+
+* Package manager
+
+Initialize the package manager:
+#+begin_src emacs-lisp
+(require 'package)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/"))
+      package-quickstart t)
+
+(unless (and (fboundp 'package-installed-p)
+             (package-installed-p 'use-package))
+  (package-initialize)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(setq use-package-always-ensure t)
+#+end_src
+
+* Presonal information
+
+#+begin_src emacs-lisp
+(setq user-full-name "Sergio Pastor Pérez"
+      user-mail-address "sergio.pastorperez@gmail.com")
+#+end_src
+
+* Theming
+** UI
+
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(show-paren-mode 1)
+(blink-cursor-mode 0)
+(scroll-bar-mode -1)
+
+(setq x-stretch-cursor t
+      initial-scratch-message nil
+      inhibit-default-init t
+      inhibit-startup-screen t
+      inhibit-startup-echo-area-message t)
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+end_src
+
+*** Highlighting
+
+**** Line
+
+Only highlight prog & text buffers
+#+begin_src emacs-lisp
+(use-package hl-line
+  :hook
+  (prog-mode . hl-line-mode)
+  (text-mode . hl-line-mode))
+#+end_src
+
+**** Numbers
+
+#+begin_src emacs-lisp
+(use-package highlight-numbers
+  :hook
+  (prog-mode . highlight-numbers-mode))
+#+end_src
+
+**** Parenthesis
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+*** Minimap
+
+#+begin_src emacs-lisp
+(use-package minimap
+  :config
+  (setq minimap-window-location 'right
+	minimap-minimum-width 10
+	minimap-dedicated-window nil
+	minimap-hide-cursor nil
+	minimap-hide-scroll-bar t
+	minimap-hide-fringes t))
+
+#+end_src
+
+** Modeline
+
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+#+end_src
+
+** Color schemes
+
+#+begin_src emacs-lisp
+(setq custom-safe-themes t)
+#+end_src
+
+*** Ef
+
+#+begin_src emacs-lisp
+(use-package ef-themes
+  :config
+  (load-theme 'ef-night t))
+#+end_src
+
+*** Doom
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+#+end_src
+
+** Fonts
+
+#+begin_src emacs-lisp
+(setq default-frame-alist
+   '((font . "JetBrainsMono Nerd Font-14")))
+#+end_src
+
+* Editing functionality
+** Evil
+
+#+begin_src emacs-lisp
+(use-package evil
+  :demand t
+  :bind (:map evil-motion-state-map
+	      ;; Unbound confliction keys
+              ("C-e" . nil)
+              ("C-y" . nil)
+              ("TAB" . nil)
+	      ("C-<up>" . evil-scroll-line-up)
+              ("C-<down>" . evil-scroll-line-down))
+  :config
+  (evil-mode 1)
+  (evil-set-undo-system 'undo-tree)
+  (mapc (lambda (mode)
+          (evil-set-initial-state mode 'emacs))
+        '(eww-mode
+          profiler-report-mode
+          pdf-view-mode))
+  :init
+  (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
+        evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
+        evil-kill-on-visual-paste nil))
+#+end_src
+
+*** Surround
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
+*** Snipe
+
+#+begin_src emacs-lisp
+(use-package evil-snipe
+  :ensure t
+  :after evil
+  :config
+  (evil-snipe-override-mode 1))
+#+end_src
+
+** Expand region
+
+#+begin_src emacs-lisp
+(use-package expand-region
+  :after evil
+  :bind ("C-e" . er/expand-region))
+#+end_src
+
+* History
+** Savehist
+
+Persist history over Emacs restarts. Vertico sorts by history position.
+#+begin_src emacs-lisp
+(use-package savehist
+  :init
+  (savehist-mode))
+#+end_src
+
+** Undo-tree
+
+Undo system that allows tree visualization.
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :init
+  (global-undo-tree-mode)
+  :config
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))
+        undo-tree-visualizer-timestamps t
+        undo-tree-visualizer-diff t))
+#+end_src
+
+* Help
+** Helpful
+
+Improved help system.
+#+begin_src emacs-lisp
+(use-package helpful
+  :custom
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ("C-h f" . helpful-function)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+** Which-key
+
+Key legend popup
+#+begin_src emacs-lisp
+(use-package which-key
+  :diminish
+  :custom
+  (which-key-idle-secondary-delay 0.01)
+  :config
+  (which-key-mode t))
+#+end_src
+
+* Completion
+** Vertico
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :custom
+  (vertico-cycle t)
+  :bind
+  (:map vertico-map
+  ("<prior>" . vertico-scroll-down)
+  ("<next>" . vertico-scroll-up)
+  ("<escape>" . minibuffer-keyboard-quit))
+  :config
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+  (global-set-key "\M-'" #'vertico-repeat)
+  :init
+  (vertico-mode))
+#+end_src
+
+*** Tidy directory paths
+
+Create this types of visual transformations:
++ ~/some/path//opt -> /opt
++ /some/other/path/~/.config -> ~/.config
+#+begin_src emacs-lisp
+;; Configure directory extension.
+(use-package vertico-directory
+  :ensure nil ;; Since it's an extension from the vertico repo we can't fetch it from the package manage
+  :after vertico
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+#+end_src
+
+*** Mouse
+
+Add mouse support to vertico popups.
+#+begin_src emacs-lisp
+(use-package vertico-mouse
+  :after vertico
+  :load-path "straight/repos/vertico/extensions/"
+  :init (vertico-mouse-mode))
+#+end_src
+
+** Orderless
+
+Allow fuzy search on the completion framework.
+#+begin_src emacs-lisp
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+** Marginalia
+
+Add contextual information on the completion menus.
+#+begin_src emacs-lisp
+(use-package marginalia
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+           ("M-A" . marginalia-cycle))
+  :custom
+    (marginalia-max-relative-age 0)
+    (marginalia-align 'left)
+  :init
+    (marginalia-mode))
+#+end_src
+
+** Icons
+
+Enable icons on the completion framework.
+#+begin_src emacs-lisp
+(use-package all-the-icons-completion
+  :after (marginalia all-the-icons)
+  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  :config (setq all-the-icons-scale-factor 1.0)
+  :init (all-the-icons-completion-mode))
+#+end_src
+
+** Corfu
+
+Autocompletion for inline text.
+#+begin_src emacs-lisp
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                  ; Allows cycling through candidates
+  (corfu-auto t)                   ; Enable auto completion
+  (corfu-auto-prefix 2)            ; Enable auto completion
+  (corfu-auto-delay 0.0)           ; Enable auto completion
+  (corfu-quit-at-boundary 'separator)
+  (corfu-echo-documentation 0.25)   ; Enable auto completion
+  (corfu-preview-current 'insert)   ; Do not preview current candidate
+  (tab-always-indent 'complete)
+
+
+  ;; Optionally use TAB for cycling, default is `corfu-complete'.
+  :bind (:map corfu-map
+              ("C-SPC" . corfu-insert-separator))
+  :init
+  (global-corfu-mode)
+  :config
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active)
+		(bound-and-true-p vertico--input))
+      (setq-local corfu-auto t)
+      (corfu-mode)))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package corfu-history
+  :after corfu
+  :load-path "~/.emacs.d/straight/repos/corfu/extensions"
+  :init
+  (global-corfu-mode))
+#+end_src
+
+*** Documentation popup
+
+#+begin_src emacs-lisp
+(use-package corfu-doc
+  :after corfu
+  :bind (:map corfu-map
+	      ("M-e" . corfu-doc-scroll-down)
+	      ("M-d" . corfu-doc-scroll-up)
+	      ("M-c" . corfu-doc-toggle))
+  :hook (corfu-mode-hook . corfu-doc-mode))
+#+end_src
+
+*** Icons
+
+#+begin_src emacs-lisp
+(use-package kind-icon
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+
+
+*** Eshell support
+
+#+begin_src emacs-lisp
+(defun corfu-send-shell (&rest _)
+  "Send completion candidate when inside comint/eshell."
+  (cond
+   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
+    (eshell-send-input))
+   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
+    (comint-send-input))))
+
+(advice-add #'corfu-insert :after #'corfu-send-shell)
+
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setq-local corfu-auto nil)
+            (corfu-mode)))
+#+end_src
+
+** Yasnippet
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :init (yas-global-mode 1))
+
+(use-package yasnippet-snippets)
+#+end_src
+
+** Extras
+
+#+begin_src emacs-lisp
+(advice-add #'vertico--format-candidate :around
+            (lambda (orig cand prefix suffix index _start)
+              (setq cand (funcall orig cand prefix suffix index _start))
+              (concat
+               (if (= vertico--index index)
+                   (propertize "» " 'face 'vertico-current)
+                 "  ")
+               cand)))
+
+;; Add prompt indicator to `completing-read-multiple'.
+;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+(defun crm-indicator (args)
+  (cons (format "[CRM%s] %s"
+                (replace-regexp-in-string
+                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                 crm-separator)
+                (car args))
+        (cdr args)))
+(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+#+end_src
+
+* Search
+** Consult
+
+Adds emacs wrappers on UNIX search commands.
+#+begin_src emacs-lisp
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("<help> a" . consult-apropos)            ;; orig. apropos-command
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key (kbd "M-.")
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;; There are multiple reasonable alternatives to chose from.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;;; 3. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 4. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+)
+#+end_src
+
+*** Dir
+
+Choose a directory and act on it.
+#+begin_src emacs-lisp
+(use-package consult-dir
+  :bind (("C-x C-d" . consult-dir)
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
+#+end_src
+
+* Version control
+** Magit
+
+#+begin_src emacs-lisp
+(use-package magit)
+#+end_src
+
+* Automatic insertions
+** Smartparenthens
+
+Improved parenthesis.
+#+begin_src emacs-lisp
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode)
+  :config
+  (require 'smartparens-config)
+  (setq sp-highlight-pair-overlay nil) ;; Do not highlight space between parentheses when they are inserted
+  :bind (("M-i" . sp-forward-slurp-sexp)
+	 ("M-I" . sp-backward-slurp-sexp)
+	 ("M-o" . sp-forward-barf-sexp)
+	 ("M-O" . sp-backward-barf-sexp)))
+#+end_src
+
+* Extras
+** Nicieties
+
+#+begin_src emacs-lisp
+;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+;; Vertico commands are hidden in normal buffers.
+(setq read-extended-command-predicate #'command-completion-default-include-p
+      enable-recursive-minibuffers t)
+(save-place-mode 1)
+
+(defun my-reload-emacs ()
+    "Reload the Emacs configuration"
+    (interactive)
+    (load-file "~/.emacs.d/init.el"))
+
+;; Make ESC close prompts
+(global-set-key (kbd "<escape>") #'keyboard-escape-quit)
+
+;; Supress warnings but enable them on debug
+(if init-file-debug
+      (setq warning-minimum-level :debug)
+    (setq warning-minimum-level :emergency))
+#+end_src
+
+*** Save place
+
+This means when you visit a file, point goes to the last place
+where it was when you previously visited the same file.
+#+begin_src emacs-lisp
+(save-place-mode 1)
+#+end_src
+
+** Handle very long lines
+
+When the lines in a file are so long that performance could suffer to an
+unacceptable degree, we say "so long" to the slow modes and options enabled
+in that buffer, and invoke something much more basic in their place.
+#+begin_src emacs-lisp
+(use-package so-long
+  :hook (after-init-hook . global-so-long-mode))
+#+end_src
+
+** Scrolling
+
+#+begin_src emacs-lisp
+(use-package good-scroll
+  :config
+  (setq scroll-step 1)
+  :bind
+  ("<next>" . good-scroll-up-full-screen)
+  ("<prior>" . good-scroll-down-full-screen)
+  :init
+  (good-scroll-mode 1))
+#+end_src
+
+* Org
+
+#+begin_src emacs-lisp
+(setq org-edit-src-content-indentation 0)
+#+end_src
+
+
+* Shells
+** Eshell
+
+#+begin_src emacs-lisp
+(define-key eshell-mode-map (kbd "<home>") #'eshell-bol) ;; Avoid cursor going before prompt
+#+end_src
+
+*** Aliases
+
+#+begin_src emacs-lisp
+(defun eshell/ff (&rest args)
+  (apply #'find-file args))
+
+(defun eshell/fo (&rest args)
+  (apply #'find-file-other-window args))
+#+end_src
+
+
+*** Suggestions
+
+#+begin_src emacs-lisp
+(use-package esh-autosuggest
+  :hook (eshell-mode . esh-autosuggest-mode)) 
+#+end_src
+
+*** Fancy prompt
+
+#+begin_src emacs-lisp
+(use-package eshell-prompt-extras
+  :config
+  (with-eval-after-load "esh-opt"
+  (autoload 'epe-theme-lambda "eshell-prompt-extras")
+  (setq eshell-highlight-prompt nil
+        eshell-prompt-function 'epe-theme-lambda))
+  ;; Display python virtual environment
+  (with-eval-after-load "esh-opt"
+  (unless (and (fboundp 'package-installed-p)
+               (package-installed-p 'virtualenvwrapper)) ;; This requires virtualenvwrapper to work
+    (package-install 'virtualenvwrapper))
+  (venv-initialize-eshell)
+  (autoload 'epe-theme-lambda "eshell-prompt-extras")
+  (setq eshell-highlight-prompt nil
+        eshell-prompt-function 'epe-theme-lambda)))
+#+end_src
+
