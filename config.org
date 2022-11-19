@@ -70,7 +70,9 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+  :hook
+  (prog-mode . rainbow-delimiters-mode)
+  (eshell-mode . rainbow-delimiters-mode))
 #+end_src
 
 *** Minimap
@@ -79,11 +81,11 @@ Only highlight prog & text buffers
 (use-package minimap
   :config
   (setq minimap-window-location 'right
-	minimap-minimum-width 10
-	minimap-dedicated-window nil
-	minimap-hide-cursor nil
-	minimap-hide-scroll-bar t
-	minimap-hide-fringes t))
+        minimap-minimum-width 10
+        minimap-dedicated-window nil
+        minimap-hide-cursor nil
+        minimap-hide-scroll-bar t
+        minimap-hide-fringes t))
 
 #+end_src
 
@@ -106,7 +108,7 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (use-package ef-themes
   :config
-  (load-theme 'ef-light t))
+  (load-theme 'ef-night t))
 #+end_src
 
 *** Doom
@@ -143,7 +145,7 @@ Only highlight prog & text buffers
 (use-package evil
   :demand t
   :bind (:map evil-motion-state-map
-	      ;; Unbound confliction keys
+              ;; Unbound confliction keys
               ("C-e" . nil)
               ("C-y" . nil)
               ("TAB" . nil)
@@ -389,7 +391,7 @@ Autocompletion for inline text.
   (defun corfu-enable-always-in-minibuffer ()
     "Enable Corfu in the minibuffer if Vertico/Mct are not active."
     (unless (or (bound-and-true-p mct--active)
-		(bound-and-true-p vertico--input))
+                (bound-and-true-p vertico--input))
       (setq-local corfu-auto t)
       (corfu-mode)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer))
@@ -409,9 +411,9 @@ Autocompletion for inline text.
 (use-package corfu-doc
   :after corfu
   :bind (:map corfu-map
-	      ("M-e" . corfu-doc-scroll-down)
-	      ("M-d" . corfu-doc-scroll-up)
-	      ("M-c" . corfu-doc-toggle))
+              ("M-e" . corfu-doc-scroll-down)
+              ("M-d" . corfu-doc-scroll-up)
+              ("M-c" . corfu-doc-toggle))
   :hook (corfu-mode-hook . corfu-doc-mode))
 #+end_src
 
@@ -442,8 +444,8 @@ Autocompletion for inline text.
 
 (add-hook 'eshell-mode-hook
           #'(lambda ()
-            (setq-local corfu-auto nil)
-            (corfu-mode)))
+              (setq-local corfu-auto nil)
+              (corfu-mode)))
 #+end_src
 
 ** Yasnippet
@@ -625,14 +627,18 @@ Choose a directory and act on it.
 Improved parenthesis.
 #+begin_src emacs-lisp
 (use-package smartparens
-  :hook (prog-mode . smartparens-mode)
+  :hook
+  (prog-mode . smartparens-mode)
+  (eshell-mode . smartparens-mode)
   :config
   (require 'smartparens-config)
   (setq sp-highlight-pair-overlay nil) ;; Do not highlight space between parentheses when they are inserted
   :bind (("M-i" . sp-forward-slurp-sexp)
-	 ("M-I" . sp-backward-slurp-sexp)
-	 ("M-o" . sp-forward-barf-sexp)
-	 ("M-O" . sp-backward-barf-sexp)))
+         ("M-I" . sp-backward-slurp-sexp)
+         ("M-o" . sp-forward-barf-sexp)
+         ("M-O" . sp-backward-barf-sexp))
+  :init
+  (smartparens-global-mode))
 #+end_src
 
 * Extras
@@ -742,9 +748,38 @@ in that buffer, and invoke something much more basic in their place.
 
 Eshell overrides the map after initialization therefore we have to set it after.
 #+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook (lambda ()
-			     (define-key eshell-mode-map (kbd "<home>") #'eshell-bol))) ;; Avoid cursor going before prompt
+(add-hook 'eshell-mode-hook #'(lambda ()
+                                (local-set-key (kbd "<home>") #'eshell-bol))) ;; Avoid cursor going before prompt
 #+end_src
+
+*** Clear
+
+#+begin_src emacs-lisp
+(add-hook 'eshell-mode-hook (lambda ()
+                              (defun eshell/clear ()
+                                "Clear the eshell buffer."
+                                (let ((inhibit-read-only t))
+                                  (erase-buffer)
+                                  (eshell/clear-scrollback)))))
+
+(defun run-this-in-eshell (cmd)
+  "Runs the command 'cmd' in eshell."
+  (with-current-buffer "*eshell*"
+    (end-of-buffer)
+    (eshell-kill-input)
+    (message (concat "Running in Eshell: " cmd))
+    (insert cmd)
+    (eshell-send-input)
+    (end-of-buffer)
+    (eshell-bol)
+    (yank)))
+
+(add-hook 'eshell-mode-hook #'(lambda ()
+                                (local-set-key (kbd "C-l") #'(lambda ()
+                                                               (interactive)
+                                                               (run-this-in-eshell "clear")))))
+#+end_src
+
 
 *** Aliases
 
@@ -766,7 +801,8 @@ Eshell overrides the map after initialization therefore we have to set it after.
 
 *** Fancy prompt
 
-#+begin_src emacs-lisp
+Needed packages.
+#+begin_src emacs-lisp :tangle no
 (use-package eshell-prompt-extras
   :config
   ;; Display python virtual environment
@@ -781,3 +817,84 @@ Eshell overrides the map after initialization therefore we have to set it after.
         eshell-prompt-function #'epe-theme-lambda)))
 #+end_src
 
+
+Prompt configuration.
+#+begin_src emacs-lisp
+(defun doom-call-process (command &rest args)
+  "Execute COMMAND with ARGS synchronously.
+Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
+code of the process and OUTPUT is its stdout output."
+  (with-temp-buffer
+    (cons (or (apply #'call-process command nil t nil (remq nil args))
+              -1)
+          (string-trim (buffer-string)))))
+
+(defface +eshell-prompt-pwd '((t (:inherit font-lock-constant-face)))
+  "TODO"
+  :group 'eshell)
+
+(defun +eshell--current-git-branch ()
+  ;; TODO Refactor me
+  (cl-destructuring-bind (status . output)
+      (doom-call-process "git" "symbolic-ref" "-q" "--short" "HEAD")
+    (if (equal status 0)
+        (format " [%s]" output)
+      (cl-destructuring-bind (status . output)
+          (doom-call-process "git" "describe" "--all" "--always" "HEAD")
+        (if (equal status 0)
+            (format " [%s]" output)
+          "")))))
+
+(defun +eshell-default-prompt-fn ()
+  "Generate the prompt string for eshell. Use for `eshell-prompt-function'."
+  (require 'shrink-path)
+  (concat (if (bobp) "" "\n")
+          (let ((pwd (eshell/pwd)))
+            (propertize (if (equal pwd "~")
+                            pwd
+                          (abbreviate-file-name (shrink-path-file pwd)))
+                        'face '+eshell-prompt-pwd))
+          (propertize (+eshell--current-git-branch)
+                      'face '+eshell-prompt-git-branch)
+          (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
+          " "))
+
+(eval-after-load "eshell"
+  (setq eshell-banner-message
+        '(format "%s %s\n"
+                 (propertize (format " %s " (string-trim (buffer-name)))
+                             'face 'mode-line-highlight)
+                 (propertize (current-time-string)
+                             'face 'font-lock-keyword-face))
+        eshell-scroll-to-bottom-on-input 'all
+        eshell-scroll-to-bottom-on-output 'all
+        eshell-kill-processes-on-exit t
+        eshell-hist-ignoredups t
+        ;; don't record command in history if prefixed with whitespace
+        ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
+        eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
+        ;; em-prompt
+        eshell-prompt-regexp "^.* λ "
+        eshell-prompt-function #'+eshell-default-prompt-fn
+        ;; em-glob
+        eshell-glob-case-insensitive t
+        eshell-error-if-no-glob t))
+#+end_src
+
+**** FIXME: font-lock disable
+
+Somehow disabling font-lock-mode fixes the prompt not coloring properly.
+#+begin_src emacs-lisp
+(add-hook 'eshell-mode-hook (lambda () (font-lock-mode -1))) 
+#+end_src
+
+
+
+
+
+* TODO [0/4] [0%]
++ [ ] Winner undoo
++ [ ] Change focus
++ [ ] Popper
++ [ ] Shackles
++ [ ] Ediff opens controll window in a new frame
