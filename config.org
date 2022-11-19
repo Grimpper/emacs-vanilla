@@ -43,7 +43,7 @@ Initialize the package manager:
       inhibit-startup-screen t
       inhibit-startup-echo-area-message t)
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
 *** Highlighting
@@ -106,7 +106,7 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (use-package ef-themes
   :config
-  (load-theme 'ef-night t))
+  (load-theme 'ef-light t))
 #+end_src
 
 *** Doom
@@ -289,7 +289,7 @@ Key legend popup.
   ("<escape>" . minibuffer-keyboard-quit))
   :config
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (global-set-key "\M-'" #'vertico-repeat)
+  (define-key override-global-map (kbd "C-'") #'vertico-repeat)
   :init
   (vertico-mode))
 #+end_src
@@ -441,7 +441,7 @@ Autocompletion for inline text.
 (advice-add #'corfu-insert :after #'corfu-send-shell)
 
 (add-hook 'eshell-mode-hook
-          (lambda ()
+          #'(lambda ()
             (setq-local corfu-auto nil)
             (corfu-mode)))
 #+end_src
@@ -643,7 +643,6 @@ Improved parenthesis.
 ;; Vertico commands are hidden in normal buffers.
 (setq read-extended-command-predicate #'command-completion-default-include-p
       enable-recursive-minibuffers t)
-(save-place-mode 1)
 
 (defun my-reload-emacs ()
     "Reload the Emacs configuration"
@@ -658,6 +657,16 @@ Improved parenthesis.
       (setq warning-minimum-level :debug)
     (setq warning-minimum-level :emergency))
 #+end_src
+
+*** Autorevert
+
+#+begin_src emacs-lisp
+(setq revert-without-query '(".*")
+      auto-revert-interval 0.5)
+
+(define-key override-global-map (kbd "C-x r b") #'revert-buffer)
+#+end_src
+
 
 *** Save place
 
@@ -760,18 +769,15 @@ Eshell overrides the map after initialization therefore we have to set it after.
 #+begin_src emacs-lisp
 (use-package eshell-prompt-extras
   :config
-  (with-eval-after-load "esh-opt"
-  (autoload 'epe-theme-lambda "eshell-prompt-extras")
-  (setq eshell-highlight-prompt nil
-        eshell-prompt-function 'epe-theme-lambda))
   ;; Display python virtual environment
   (with-eval-after-load "esh-opt"
   (unless (and (fboundp 'package-installed-p)
                (package-installed-p 'virtualenvwrapper)) ;; This requires virtualenvwrapper to work
     (package-install 'virtualenvwrapper))
   (venv-initialize-eshell)
+  ;; Add lambda theme
   (autoload 'epe-theme-lambda "eshell-prompt-extras")
   (setq eshell-highlight-prompt nil
-        eshell-prompt-function 'epe-theme-lambda)))
+        eshell-prompt-function #'epe-theme-lambda)))
 #+end_src
 
