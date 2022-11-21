@@ -47,7 +47,6 @@ Initialize the package manager:
 #+end_src
 
 *** Highlighting
-
 **** Line
 
 Only highlight prog & text buffers
@@ -71,8 +70,8 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
   :hook
-  (prog-mode . rainbow-delimiters-mode)
-  (eshell-mode . rainbow-delimiters-mode))
+  ;; (eshell-mode . rainbow-delimiters-mode) ;; Breaks eshell prompt coloring
+  (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 *** Minimap
@@ -428,7 +427,6 @@ Autocompletion for inline text.
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
 
-
 *** Eshell support
 
 #+begin_src emacs-lisp
@@ -581,7 +579,7 @@ Adds emacs wrappers on UNIX search commands.
    :preview-key '(:debounce 0.4 any))
 
   ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
+  ;; Both "<" and "C-+" work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
 
   ;; Optionally make narrowing help available in the minibuffer.
@@ -673,7 +671,6 @@ Improved parenthesis.
 (define-key override-global-map (kbd "C-x r b") #'revert-buffer)
 #+end_src
 
-
 *** Save place
 
 This means when you visit a file, point goes to the last place
@@ -693,6 +690,11 @@ in that buffer, and invoke something much more basic in their place.
 #+end_src
 
 ** Scrolling
+
+#+begin_src emacs-lisp
+(setq scroll-margin 2)
+#+end_src
+
 
 #+begin_src emacs-lisp
 (use-package good-scroll
@@ -746,6 +748,26 @@ in that buffer, and invoke something much more basic in their place.
 * Shells
 ** Eshell
 
++ Testing:
+#+begin_src emacs-lisp :tangle no
+(setq eshell-prompt-function
+      (lambda ()
+        (concat
+         (propertize "┌─[" 'face `(:foreground "#2aa198"))
+         (propertize (user-login-name) 'face `(:foreground "#dc322f"))
+         (propertize "@" 'face `(:foreground "#2aa198"))
+         (propertize (system-name) 'face `(:foreground "#268bd2"))
+         (propertize "]──[" 'face `(:foreground "#2aa198"))
+         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "#b58900"))
+         (propertize "]──[" 'face `(:foreground "#2aa198"))
+         (propertize (concat (eshell/pwd)) 'face `(:foreground "#93a1a1"))
+         (propertize "]\n" 'face `(:foreground "#2aa198"))
+         (propertize "└─>" 'face `(:foreground "#2aa198"))
+         ;; (propertize (if venv-current-name (concat " (" venv-current-name ")")  "") 'face `(:foreground "#00dc00"))
+         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "#2aa198"))
+         )))
+#+end_src
+
 Eshell overrides the map after initialization therefore we have to set it after.
 #+begin_src emacs-lisp
 (add-hook 'eshell-mode-hook #'(lambda ()
@@ -780,7 +802,6 @@ Eshell overrides the map after initialization therefore we have to set it after.
                                                                (run-this-in-eshell "clear")))))
 #+end_src
 
-
 *** Aliases
 
 #+begin_src emacs-lisp
@@ -791,7 +812,6 @@ Eshell overrides the map after initialization therefore we have to set it after.
   (apply #'find-file-other-window args))
 #+end_src
 
-
 *** Suggestions
 
 #+begin_src emacs-lisp
@@ -801,7 +821,7 @@ Eshell overrides the map after initialization therefore we have to set it after.
 
 *** Fancy prompt
 
-Needed packages.
+Needed packages:
 #+begin_src emacs-lisp :tangle no
 (use-package eshell-prompt-extras
   :config
@@ -817,9 +837,20 @@ Needed packages.
         eshell-prompt-function #'epe-theme-lambda)))
 #+end_src
 
-
-Prompt configuration.
+Custom banner:
 #+begin_src emacs-lisp
+(eval-after-load "eshell"
+  (setq eshell-banner-message
+        '(format "%s %s\n"
+                 (propertize (format " %s " (string-trim (buffer-name)))
+                             'face 'mode-line-highlight)
+                 (propertize (current-time-string)
+                             'face 'font-lock-keyword-face))))  
+#+end_src
+
+**** Doom prompt
+
+#+begin_src emacs-lisp :tangle no
 (defun doom-call-process (command &rest args)
   "Execute COMMAND with ARGS synchronously.
 Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
@@ -860,13 +891,7 @@ code of the process and OUTPUT is its stdout output."
           " "))
 
 (eval-after-load "eshell"
-  (setq eshell-banner-message
-        '(format "%s %s\n"
-                 (propertize (format " %s " (string-trim (buffer-name)))
-                             'face 'mode-line-highlight)
-                 (propertize (current-time-string)
-                             'face 'font-lock-keyword-face))
-        eshell-scroll-to-bottom-on-input 'all
+  (setq eshell-scroll-to-bottom-on-input 'all
         eshell-scroll-to-bottom-on-output 'all
         eshell-kill-processes-on-exit t
         eshell-hist-ignoredups t
@@ -881,16 +906,89 @@ code of the process and OUTPUT is its stdout output."
         eshell-error-if-no-glob t))
 #+end_src
 
-**** FIXME: font-lock disable
+**** Many Icons prompt
 
-Somehow disabling font-lock-mode fixes the prompt not coloring properly.
 #+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook (lambda () (font-lock-mode -1))) 
+(require 'dash)
+(require 's)
+
+(defmacro with-face (STR &rest PROPS)
+  "Return STR propertized with PROPS."
+  `(propertize ,STR 'face (list ,@PROPS)))
+
+(defmacro esh-section (NAME ICON FORM &rest PROPS)
+  "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
+  `(setq ,NAME
+         (lambda () (when ,FORM
+                 (-> ,ICON
+                    (concat esh-section-delim ,FORM)
+                    (with-face ,@PROPS))))))
+
+(defun esh-acc (acc x)
+  "Accumulator for evaluating and concatenating esh-sections."
+  (--if-let (funcall x)
+      (if (s-blank? acc)
+          it
+        (concat acc esh-sep it))
+    acc))
+
+(defun esh-prompt-func ()
+  "Build `eshell-prompt-function'"
+  (concat esh-header
+          (-reduce-from 'esh-acc "" eshell-funcs)
+          "\n"
+          eshell-prompt-string))
+
+(esh-section esh-dir
+             "\xf07c"  ;  (faicon folder)
+             (abbreviate-file-name (eshell/pwd))
+             '(:inherit outline-3 :bold ultra-bold :underline t))
+
+(esh-section esh-git
+             "\xe907"  ;  (git icon)
+             (magit-get-current-branch)
+             '(:inherit outline-4))
+
+(esh-section esh-python
+             "\xe928"  ;  (python icon)
+             (boundp 'pyvenv-virtual-env-name))
+
+(esh-section esh-clock
+             "\xf017"  ;  (clock icon)
+             (format-time-string "%H:%M" (current-time))
+             '(:inherit outline-7))
+
+;; Below I implement a "prompt number" section
+(setq esh-prompt-num 0)
+(add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
+(advice-add 'eshell-send-input :before
+            (lambda (&rest args) (setq esh-prompt-num (incf esh-prompt-num))))
+
+(esh-section esh-num
+             "\xf0c9"  ;  (list icon)
+             (number-to-string esh-prompt-num)
+             '(:inherit outline-1))
+
+;; Separator between esh-sections
+(setq esh-sep "  ")  ; or " | "
+
+;; Separator between an esh-section icon and form
+(setq esh-section-delim " ")
+
+;; Eshell prompt header
+(setq esh-header "\n╭─ ")  ; or "\n┌─"
+
+;; Eshell prompt regexp and string. Unless you are varying the prompt by eg.
+;; your login, these can be the same.
+(setq eshell-prompt-regexp "╰─ ")   ; or "└─> "
+(setq eshell-prompt-string "╰─ ")   ; or "└─> "
+
+;; Choose which eshell-funcs to enable
+(setq eshell-funcs (list esh-dir esh-git esh-python esh-clock esh-num))
+
+;; Enable the new eshell prompt
+(setq eshell-prompt-function 'esh-prompt-func)
 #+end_src
-
-
-
-
 
 * TODO [0/4] [0%]
 + [ ] Winner undoo
@@ -898,3 +996,4 @@ Somehow disabling font-lock-mode fixes the prompt not coloring properly.
 + [ ] Popper
 + [ ] Shackles
 + [ ] Ediff opens controll window in a new frame
++ [ ] Eshell is slow on the first command
