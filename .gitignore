@@ -1,0 +1,11 @@
+/.cache/
+/auto-save-list/
+/config.el
+/elpa/
+/eshell/
+/history
+/package-quickstart.el
+/projects
+/tramp
+/transient/
+/undo/

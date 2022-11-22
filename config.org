@@ -226,6 +226,15 @@ Only highlight prog & text buffers
 #+end_src
 
 * History
+** Autosave
+
+Put autosave files on a dedicated directory (avoids cluttering the working directory tree).
+#+begin_src emacs-lisp
+(setq auto-save-file-name-transforms
+      `((".*" ,(concat user-emacs-directory "auto-save/") t)))
+#+end_src
+
+
 ** Savehist
 
 Persist history over Emacs restarts. Vertico sorts by history position.
@@ -690,11 +699,6 @@ in that buffer, and invoke something much more basic in their place.
 #+end_src
 
 ** Scrolling
-
-#+begin_src emacs-lisp
-(setq scroll-margin 2)
-#+end_src
-
 
 #+begin_src emacs-lisp
 (use-package good-scroll
