@@ -337,6 +337,7 @@ Add mouse support to vertico popups.
 
 Allow fuzy search on the completion framework.
 #+begin_src emacs-lisp
+;; Optionally use the `orderless' completion style.
 (use-package orderless
   :init
   ;; Configure a custom style dispatcher (see the Consult wiki)
@@ -634,12 +635,11 @@ Choose a directory and act on it.
 Improved parenthesis.
 #+begin_src emacs-lisp
 (use-package smartparens
-  :hook
-  (prog-mode . smartparens-mode)
-  (eshell-mode . smartparens-mode)
   :config
   (require 'smartparens-config)
-  (setq sp-highlight-pair-overlay nil) ;; Do not highlight space between parentheses when they are inserted
+  (setq sp-highlight-pair-overlay nil ;; Do not highlight space between parentheses when they are inserted
+        sp-ignore-modes-list (delete 'minibuffer-mode sp-ignore-modes-list)) ;; Enable in the minibuffer
+  (sp-local-pair 'minibuffer-mode "'" nil :actions nil) ;; Disable pairing single quotes on minibuffer
   :bind (("M-i" . sp-forward-slurp-sexp)
          ("M-I" . sp-backward-slurp-sexp)
          ("M-o" . sp-forward-barf-sexp)
