@@ -748,30 +748,22 @@ in that buffer, and invoke something much more basic in their place.
 * Shells
 ** Eshell
 
-+ Testing:
-#+begin_src emacs-lisp :tangle no
-(setq eshell-prompt-function
-      (lambda ()
-        (concat
-         (propertize "┌─[" 'face `(:foreground "#2aa198"))
-         (propertize (user-login-name) 'face `(:foreground "#dc322f"))
-         (propertize "@" 'face `(:foreground "#2aa198"))
-         (propertize (system-name) 'face `(:foreground "#268bd2"))
-         (propertize "]──[" 'face `(:foreground "#2aa198"))
-         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "#b58900"))
-         (propertize "]──[" 'face `(:foreground "#2aa198"))
-         (propertize (concat (eshell/pwd)) 'face `(:foreground "#93a1a1"))
-         (propertize "]\n" 'face `(:foreground "#2aa198"))
-         (propertize "└─>" 'face `(:foreground "#2aa198"))
-         ;; (propertize (if venv-current-name (concat " (" venv-current-name ")")  "") 'face `(:foreground "#00dc00"))
-         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "#2aa198"))
-         )))
-#+end_src
-
-Eshell overrides the map after initialization therefore we have to set it after.
+Settings:
 #+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook #'(lambda ()
-                                (local-set-key (kbd "<home>") #'eshell-bol))) ;; Avoid cursor going before prompt
+;; Avoid cursor going before prompt
+(add-hook 'eshell-mode-hook #'(lambda () ;; Eshell overrides the map after initialization therefore we have to set it after.
+                                (local-set-key (kbd "<home>") #'eshell-bol)))
+
+(setq eshell-scroll-to-bottom-on-input 'all
+      eshell-scroll-to-bottom-on-output 'all
+      eshell-kill-processes-on-exit t
+      eshell-hist-ignoredups t
+      ;; don't record command in history if prefixed with whitespace
+      ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
+      eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
+      ;; em-glob
+      eshell-glob-case-insensitive t
+      eshell-error-if-no-glob t)
 #+end_src
 
 *** Clear
@@ -864,6 +856,10 @@ code of the process and OUTPUT is its stdout output."
   "TODO"
   :group 'eshell)
 
+(defface +eshell-prompt-git-branch '((t (:inherit font-lock-regexp-grouping-construct)))
+  "TODO"
+  :group 'eshell)
+
 (defun +eshell--current-git-branch ()
   ;; TODO Refactor me
   (cl-destructuring-bind (status . output)
@@ -891,19 +887,9 @@ code of the process and OUTPUT is its stdout output."
           " "))
 
 (eval-after-load "eshell"
-  (setq eshell-scroll-to-bottom-on-input 'all
-        eshell-scroll-to-bottom-on-output 'all
-        eshell-kill-processes-on-exit t
-        eshell-hist-ignoredups t
-        ;; don't record command in history if prefixed with whitespace
-        ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
-        eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
-        ;; em-prompt
-        eshell-prompt-regexp "^.* λ "
-        eshell-prompt-function #'+eshell-default-prompt-fn
-        ;; em-glob
-        eshell-glob-case-insensitive t
-        eshell-error-if-no-glob t))
+  ;; em-prompt
+  (setq eshell-prompt-regexp "^.* λ "
+        eshell-prompt-function #'+eshell-default-prompt-fn))
 #+end_src
 
 **** Many Icons prompt
@@ -939,22 +925,27 @@ code of the process and OUTPUT is its stdout output."
           "\n"
           eshell-prompt-string))
 
+(defun check-empty-dir ()
+  (if (directory-empty-p (eshell/pwd))
+    (char-to-string ?)
+  (char-to-string ?)))
+
 (esh-section esh-dir
-             "\xf07c"  ;  (faicon folder)
+             (check-empty-dir)  ;  (get icon folder)
              (abbreviate-file-name (eshell/pwd))
              '(:inherit outline-3 :bold ultra-bold :underline t))
 
 (esh-section esh-git
-             "\xe907"  ;  (git icon)
+             ""  ;  (git icon)
              (magit-get-current-branch)
              '(:inherit outline-4))
 
 (esh-section esh-python
-             "\xe928"  ;  (python icon)
+             ""  ;  (python icon)
              (boundp 'pyvenv-virtual-env-name))
 
 (esh-section esh-clock
-             "\xf017"  ;  (clock icon)
+             ""  ;  (clock icon)
              (format-time-string "%H:%M" (current-time))
              '(:inherit outline-7))
 
