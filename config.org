@@ -92,8 +92,9 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (use-package doom-modeline
-  :ensure t
   :init (doom-modeline-mode 1))
+
+(use-package hide-mode-line)
 #+end_src
 
 ** Color schemes
@@ -138,6 +139,16 @@ Only highlight prog & text buffers
 #+end_src
 
 * Editing functionality
+** Mouse buttons
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
+  (define-key evil-motion-state-map (kbd "<mouse-8>") 'evil-jump-backward)
+  (define-key evil-motion-state-map (kbd "C-i") 'evil-jump-forward)
+  (define-key evil-motion-state-map (kbd "<mouse-9>") 'evil-jump-forward))
+#+end_src
+
 ** Evil
 
 #+begin_src emacs-lisp
@@ -176,7 +187,6 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (use-package evil-snipe
-  :ensure t
   :after evil
   :config
   (evil-snipe-override-mode 1))
@@ -197,12 +207,23 @@ Only highlight prog & text buffers
   (setq evil-goggles-duration 0.1))
 #+end_src
 
+*** TODO Multiedit (the keybind is not working)
+
+#+begin_src emacs-lisp
+(use-package evil-multiedit
+  :config
+  (evil-multiedit-default-keybinds)
+  :init
+  (define-key evil-multiedit-mode-map (kbd "'") #'iedit-show/hide-context-lines)) 
+#+end_src
+
 ** Expand region
 
 #+begin_src emacs-lisp
 (use-package expand-region
   :after evil
-  :bind ("C-e" . er/expand-region))
+  :bind
+  ("C-e" . er/expand-region))
 #+end_src
 
 ** IEdit
@@ -221,8 +242,11 @@ Only highlight prog & text buffers
       (iedit-mode ARG))
     (iedit-expand-down-a-line 1))
   :bind
+  ("C-;" . iedit-mode)
   ("C-M-d" . +iedit/quick-expand-down)
-  ("C-M-S-d" . +iedit/quick-expand-up))
+  ("C-M-S-d" . +iedit/quick-expand-up)
+  :init
+  (define-key iedit-mode-occurrence-keymap (kbd "'") #'iedit-show/hide-context-lines))
 #+end_src
 
 * History
@@ -233,7 +257,6 @@ Put autosave files on a dedicated directory (avoids cluttering the working direc
 (setq auto-save-file-name-transforms
       `((".*" ,(concat user-emacs-directory "auto-save/") t)))
 #+end_src
-
 
 ** Savehist
 
@@ -454,6 +477,34 @@ Autocompletion for inline text.
           #'(lambda ()
               (setq-local corfu-auto nil)
               (corfu-mode)))
+#+end_src
+
+** Cape
+
+#+begin_src emacs-lisp
+(use-package cape
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-symbol)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p i" . cape-ispell)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add `completion-at-point-functions', used by `completion-at-point'.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file))
 #+end_src
 
 ** Yasnippet
@@ -750,9 +801,39 @@ in that buffer, and invoke something much more basic in their place.
 #+end_src
 
 * Shells
+** Vterm
+
+*Settings:*
+#+begin_src emacs-lisp
+(add-hook 'vterm-mode-hook #'hide-mode-line-mode) 
+#+end_src
+
+*** Toggle
+
+#+begin_src emacs-lisp
+(use-package vterm-toggle
+  :bind
+  ("C-x t v" . vterm-toggle))
+#+end_src
+
+** Shell
+
+*Settings:*
+#+begin_src emacs-lisp
+(add-hook 'shell-mode-hook #'hide-mode-line-mode) 
+#+end_src
+
+*** Toggle
+
+#+begin_src emacs-lisp
+(use-package shell-pop
+  :bind
+  ("C-x t s" . shell-pop))
+#+end_src
+
 ** Eshell
 
-Settings:
+*Settings:*
 #+begin_src emacs-lisp
 ;; Avoid cursor going before prompt
 (add-hook 'eshell-mode-hook #'(lambda () ;; Eshell overrides the map after initialization therefore we have to set it after.
@@ -768,6 +849,17 @@ Settings:
       ;; em-glob
       eshell-glob-case-insensitive t
       eshell-error-if-no-glob t)
+
+;; Remove modeline
+(add-hook 'eshell-mode-hook #'hide-mode-line-mode)
+#+end_src
+
+*** Toggle
+
+#+begin_src emacs-lisp
+(use-package eshell-toggle
+  :bind
+  ("C-x t e" . eshell-toggle))
 #+end_src
 
 *** Clear
@@ -898,6 +990,7 @@ code of the process and OUTPUT is its stdout output."
 
 **** Many Icons prompt
 
+Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Making eshell your own]]
 #+begin_src emacs-lisp
 (require 'dash)
 (require 's)
@@ -983,6 +1076,15 @@ code of the process and OUTPUT is its stdout output."
 
 ;; Enable the new eshell prompt
 (setq eshell-prompt-function 'esh-prompt-func)
+#+end_src
+
+* Dired
+
+#+begin_src emacs-lisp
+(use-package all-the-icons-dired
+  :hook
+  (dired-mode . all-the-icons-dired-mode)
+  :init (setq all-the-icons-dired-monochrome nil))
 #+end_src
 
 * TODO [0/4] [0%]
