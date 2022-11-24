@@ -143,10 +143,8 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
-  (define-key evil-motion-state-map (kbd "<mouse-8>") 'evil-jump-backward)
-  (define-key evil-motion-state-map (kbd "C-i") 'evil-jump-forward)
-  (define-key evil-motion-state-map (kbd "<mouse-9>") 'evil-jump-forward))
+  (define-key evil-motion-state-map (kbd "<mouse-8>") 'better-jumper-jump-backward)
+  (define-key evil-motion-state-map (kbd "<mouse-9>") 'better-jumper-jump-forward))
 #+end_src
 
 ** Evil
@@ -158,7 +156,6 @@ Only highlight prog & text buffers
               ;; Unbound confliction keys
               ("C-e" . nil)
               ("C-y" . nil)
-              ("TAB" . nil)
               ("C-<up>" . evil-scroll-line-up)
               ("C-<down>" . evil-scroll-line-down))
   :config
@@ -215,6 +212,22 @@ Only highlight prog & text buffers
   (evil-multiedit-default-keybinds)
   :init
   (define-key evil-multiedit-mode-map (kbd "'") #'iedit-show/hide-context-lines)) 
+#+end_src
+
+** Better jumper
+
+#+begin_src emacs-lisp
+(use-package better-jumper
+  :after evil-maps
+  :config
+  (setq better-jumper-use-evil-jump-advice t
+	better-jumper-context 'buffer) ;; Don't go to other buffers
+  :bind (:map evil-motion-state-map
+              ("C-o" . better-jumper-jump-backward)
+              ("C-i" . better-jumper-jump-forward)
+              ("TAB" . nil)) ;; Remove the default binding so org-cycle can take precedence
+  :init
+  (better-jumper-mode))
 #+end_src
 
 ** Expand region
