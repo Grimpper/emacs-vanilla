@@ -27,8 +27,7 @@ Initialize the package manager:
       user-mail-address "sergio.pastorperez@gmail.com")
 #+end_src
 
-* Theming
-** UI
+* UI
 
 #+begin_src emacs-lisp
 (menu-bar-mode -1)
@@ -46,8 +45,45 @@ Initialize the package manager:
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
-*** Highlighting
-**** Line
+** Window management
+
+*** Shackle
+
+#+begin_src emacs-lisp
+(use-package shackle)
+#+end_src
+
+
+*** Popper
+
+#+begin_src emacs-lisp
+(use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-x t l"   . popper-toggle-latest)
+         ("C-x t n"   . popper-cycle)
+         ("C-x t t" . popper-toggle-type))
+  :config
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          "^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
+          "^\\*shell.*\\*$"  shell-mode  ;shell as a popup
+          "^\\*term.*\\*$"   term-mode   ;term as a popup
+          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+          help-mode
+          helpful-mode
+          compilation-mode))
+  (setq popper-mode-line (propertize " POP " 'face 'mode-line-emphasis))
+  (setq popper-echo-dispatch-keys '("C-0" "C-1" "C-2" "C-3" "C-4"
+                                    "C-5" "C-6" "C-7" "C-8" "C-9"))
+  (popper-mode +1)
+  (popper-echo-mode +1)) ; For echo area hints
+#+end_src
+
+** Highlighting
+*** Line
 
 Only highlight prog & text buffers
 #+begin_src emacs-lisp
@@ -57,7 +93,7 @@ Only highlight prog & text buffers
   (text-mode . hl-line-mode))
 #+end_src
 
-**** Numbers
+*** Numbers
 
 #+begin_src emacs-lisp
 (use-package highlight-numbers
@@ -65,7 +101,7 @@ Only highlight prog & text buffers
   (prog-mode . highlight-numbers-mode))
 #+end_src
 
-**** Parenthesis
+*** Parenthesis
 
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
@@ -74,7 +110,7 @@ Only highlight prog & text buffers
   (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-*** Minimap
+** Minimap
 
 #+begin_src emacs-lisp
 (use-package minimap
@@ -88,6 +124,7 @@ Only highlight prog & text buffers
 
 #+end_src
 
+* Theming
 ** Modeline
 
 #+begin_src emacs-lisp
@@ -170,6 +207,11 @@ Only highlight prog & text buffers
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
         evil-kill-on-visual-paste nil))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init '(magit dired))) ;; Enable for magit
 #+end_src
 
 *** Surround
@@ -823,7 +865,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package vterm-toggle
   :bind
   ("C-x t v" . vterm-toggle))
@@ -838,7 +880,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package shell-pop
   :bind
   ("C-x t s" . shell-pop))
@@ -869,7 +911,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package eshell-toggle
   :bind
   ("C-x t e" . eshell-toggle))
