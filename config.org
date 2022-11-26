@@ -46,40 +46,84 @@ Initialize the package manager:
 #+end_src
 
 ** Window management
-
-*** Shackle
+*** IBuffer
 
 #+begin_src emacs-lisp
-(use-package shackle)
+(global-set-key (kbd "C-x C-b") #'ibuffer-other-window)
+#+end_src
+
+**** Icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons-ibuffer
+  :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
 #+end_src
 
 
-*** Popper
+**** VC
+Show files separated on version controlled projects.
 
 #+begin_src emacs-lisp
+(use-package ibuffer-vc
+  :hook
+  (ibuffer-mode . (lambda ()
+                    (ibuffer-vc-set-filter-groups-by-vc-root)
+                    (unless (eq ibuffer-sorting-mode 'alphabetic)
+                      (ibuffer-do-sort-by-alphabetic)))))
+
+(setq ibuffer-formats
+      '((mark modified read-only vc-status-mini " "
+              (name 18 18 :left :elide)
+              " "
+              (size 9 -1 :right)
+              " "
+              (mode 16 16 :left :elide)
+              " "
+              (vc-status 16 16 :left)
+              " "
+              vc-relative-file)))
+#+end_src
+
+*** TODO Popper
+
+#+begin_src emacs-lisp :tangle no
 (use-package popper
   :ensure t ; or :straight t
   :bind (("C-x t l"   . popper-toggle-latest)
          ("C-x t n"   . popper-cycle)
          ("C-x t t" . popper-toggle-type))
-  :config
   :init
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-          "^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
-          "^\\*shell.*\\*$"  shell-mode  ;shell as a popup
-          "^\\*term.*\\*$"   term-mode   ;term as a popup
-          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
-          help-mode
-          helpful-mode
-          compilation-mode))
-  (setq popper-mode-line (propertize " POP " 'face 'mode-line-emphasis))
-  (setq popper-echo-dispatch-keys '("C-0" "C-1" "C-2" "C-3" "C-4"
+  (setq popper-reference-buffers '("\\*Messages\\*"
+                                   "Output\\*$"
+                                   "\\*Async Shell Command\\*"
+                                   "^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
+                                   "^\\*shell.*\\*$"  shell-mode  ;shell as a popup
+                                   "^\\*term.*\\*$"   term-mode   ;term as a popup
+                                   "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+                                   help-mode
+                                   helpful-mode
+                                   (ibuffer-mode . hide)
+                                   compilation-mode)
+        popper-display-function nil
+        popper-mode-line (propertize " POP " 'face 'mode-line-emphasis)
+        popper-echo-dispatch-keys '("C-0" "C-1" "C-2" "C-3" "C-4"
                                     "C-5" "C-6" "C-7" "C-8" "C-9"))
   (popper-mode +1)
   (popper-echo-mode +1)) ; For echo area hints
+#+end_src
+
+*** TODO Shackles
+
+#+begin_src emacs-lisp :tangle no
+(use-package shackle
+  :config
+  (setq shackle-rules '((compilation-mode :noselect t)
+                        (help-mode :noselect t)
+                        (helpful-mode :noselect t))
+        shackle-default-rule '(:noselect t))
+
+  :init
+  (shackle-mode))
 #+end_src
 
 ** Highlighting
@@ -176,6 +220,13 @@ Only highlight prog & text buffers
 #+end_src
 
 * Editing functionality
+** Tabs
+
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+#+end_src
+
+
 ** Mouse buttons
 
 #+begin_src emacs-lisp
@@ -471,7 +522,8 @@ Autocompletion for inline text.
 
   ;; Optionally use TAB for cycling, default is `corfu-complete'.
   :bind (:map corfu-map
-              ("C-SPC" . corfu-insert-separator))
+              ("C-SPC" . corfu-insert-separator)
+              ("RET" . nil))
   :init
   (global-corfu-mode)
   :config
@@ -865,7 +917,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package vterm-toggle
   :bind
   ("C-x t v" . vterm-toggle))
@@ -880,7 +932,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package shell-pop
   :bind
   ("C-x t s" . shell-pop))
@@ -911,7 +963,7 @@ in that buffer, and invoke something much more basic in their place.
 
 *** Toggle
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package eshell-toggle
   :bind
   ("C-x t e" . eshell-toggle))
@@ -1105,7 +1157,7 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 (setq esh-prompt-num 0)
 (add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
 (advice-add 'eshell-send-input :before
-            (lambda (&rest args) (setq esh-prompt-num (incf esh-prompt-num))))
+            (lambda (&rest args) (setq esh-prompt-num (cl-incf esh-prompt-num))))
 
 (esh-section esh-num
              "\xf0c9"  ;  (list icon)
@@ -1142,10 +1194,10 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
   :init (setq all-the-icons-dired-monochrome nil))
 #+end_src
 
-* TODO [0/4] [0%]
+* TODO [1/6] [16%]
 + [ ] Winner undoo
 + [ ] Change focus
 + [ ] Popper
 + [ ] Shackles
-+ [ ] Ediff opens controll window in a new frame
-+ [ ] Eshell is slow on the first command
++ [ ] Ediff opens control window in a new frame
++ [X] Eshell is slow on the first command (some icons are slow to load)
