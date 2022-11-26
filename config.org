@@ -224,8 +224,8 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "<mouse-8>") 'better-jumper-jump-backward)
-  (define-key evil-motion-state-map (kbd "<mouse-9>") 'better-jumper-jump-forward))
+  (define-key evil-motion-state-map (kbd "<mouse-8>") 'evil-jump-backward)
+  (define-key evil-motion-state-map (kbd "<mouse-9>") 'evil-jump-forward))
 #+end_src
 
 ** Evil
@@ -298,21 +298,6 @@ Only highlight prog & text buffers
   (evil-multiedit-default-keybinds)
   :init
   (define-key evil-multiedit-mode-map (kbd "'") #'iedit-show/hide-context-lines)) 
-#+end_src
-
-** Better jumper
-
-#+begin_src emacs-lisp
-(use-package better-jumper
-  :after evil-maps
-  :config
-  (setq better-jumper-use-evil-jump-advice t
-	better-jumper-context 'buffer) ;; Don't go to other buffers
-  :bind (:map evil-motion-state-map
-              ("C-o" . better-jumper-jump-backward)
-              ("C-i" . better-jumper-jump-forward))
-  :init
-  (better-jumper-mode))
 #+end_src
 
 ** Expand region
@@ -868,6 +853,7 @@ in that buffer, and invoke something much more basic in their place.
       org-startup-indented t)
 
 (keymap-unset evil-motion-state-map "TAB") ;; Remove the default binding so org-cycle can take precedence
+(define-key org-mode-map (kbd "C-i") 'evil-jump-forward)
 #+end_src
 
 ** Fonts
@@ -1195,4 +1181,3 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 + [ ] Shackles
 + [ ] Ediff opens control window in a new frame
 + [X] Eshell is slow on the first command (some icons are slow to load)
-+ [ ] Fix better-jumper-jump-forward not working
