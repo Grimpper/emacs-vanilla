@@ -757,6 +757,15 @@ Choose a directory and act on it.
          ("C-x C-j" . consult-dir-jump-file)))
 #+end_src
 
+** Dumb jump
+
+A fantastic package that uses regex to find possible matches of the target at point
+#+begin_src emacs-lisp
+(use-package dumb-jump
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)) 
+#+end_src
+
 * Version control
 ** Magit
 
