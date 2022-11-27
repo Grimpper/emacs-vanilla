@@ -272,7 +272,7 @@ Only highlight prog & text buffers
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init)) ;; Enable for magit
+  (evil-collection-init '(magit dired helpful))) ;; Enable for magit
 #+end_src
 
 *** Surround
