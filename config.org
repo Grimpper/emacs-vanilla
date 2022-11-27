@@ -29,6 +29,7 @@ Initialize the package manager:
 
 * UI
 
+Config:
 #+begin_src emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -45,6 +46,21 @@ Initialize the package manager:
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
+** Fix defaults
+
+In emacs for history reasons C-i is the same key as TAB. This is a problem inherited from terminal emulators. Using GUI we can do better:
+#+begin_src emacs-lisp
+;; Fix TAB and C-i (only in GUI)
+(define-key input-decode-map [(control ?i)] [control-i])
+(define-key input-decode-map [(control ?I)] [(shift control-i)])
+#+end_src
+
+Escape with ESC:
+#+begin_src emacs-lisp
+;; Make ESC close prompts
+(global-set-key (kbd "<escape>") #'keyboard-escape-quit)
+#+end_src
+
 ** Window management
 *** Ibuffer
 
@@ -58,7 +74,6 @@ Initialize the package manager:
 (use-package all-the-icons-ibuffer
   :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
 #+end_src
-
 
 **** VC
 Show files separated on version controlled projects.
@@ -247,6 +262,8 @@ Only highlight prog & text buffers
         '(eww-mode
           profiler-report-mode
           pdf-view-mode))
+  (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
+  (define-key evil-motion-state-map [control-i] 'evil-jump-forward) ;; In emacs normal C-i is tab. The remap is needed
   :init
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
@@ -333,6 +350,14 @@ Only highlight prog & text buffers
 #+end_src
 
 * History
+** Save place
+
+This means when you visit a file, point goes to the last place
+where it was when you previously visited the same file.
+#+begin_src emacs-lisp
+(save-place-mode 1)
+#+end_src
+
 ** Autosave
 
 Put autosave files on a dedicated directory (avoids cluttering the working directory tree).
@@ -361,6 +386,23 @@ Undo system that allows tree visualization.
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))
         undo-tree-visualizer-timestamps t
         undo-tree-visualizer-diff t))
+#+end_src
+
+** Gumshoe
+
+Gumshoe is a daemon that quietly keep tabs on your Point movements so you can retrace your steps if you ever need a reminder of where you’ve been.
+#+begin_src emacs-lisp
+(use-package gumshoe
+  :init
+  ;; Enabing global-gumshoe-mode will initiate tracking
+  (global-gumshoe-mode +1)
+  ;; customize peruse slot display if you like
+  (setf gumshoe-slot-schema '(time buffer position line))
+  ;; personally, I use perspectives, so I use the provided extension
+  ;; :after (perspective)
+  ;; (global-gumshoe-persp-mode +1)
+  ;; (setf gumshoe-slot-schema '(perspective time buffer position line))
+)
 #+end_src
 
 * Help
@@ -801,13 +843,10 @@ Improved parenthesis.
 (setq read-extended-command-predicate #'command-completion-default-include-p
       enable-recursive-minibuffers t)
 
-(defun my-reload-emacs ()
+(defun +reload-emacs ()
     "Reload the Emacs configuration"
     (interactive)
     (load-file "~/.emacs.d/init.el"))
-
-;; Make ESC close prompts
-(global-set-key (kbd "<escape>") #'keyboard-escape-quit)
 
 ;; Supress warnings but enable them on debug
 (if init-file-debug
@@ -822,14 +861,6 @@ Improved parenthesis.
       auto-revert-interval 0.5)
 
 (define-key override-global-map (kbd "C-x r b") #'revert-buffer)
-#+end_src
-
-*** Save place
-
-This means when you visit a file, point goes to the last place
-where it was when you previously visited the same file.
-#+begin_src emacs-lisp
-(save-place-mode 1)
 #+end_src
 
 ** Handle very long lines
@@ -862,7 +893,6 @@ in that buffer, and invoke something much more basic in their place.
       org-startup-indented t)
 
 (keymap-unset evil-motion-state-map "TAB") ;; Remove the default binding so org-cycle can take precedence
-(define-key org-mode-map (kbd "C-i") 'evil-jump-forward)
 #+end_src
 
 ** Fonts
