@@ -317,14 +317,14 @@ Only highlight prog & text buffers
   (setq evil-goggles-duration 0.1))
 #+end_src
 
-*** TODO Multiedit (the keybind is not working)
+*** Multiedit (the keybind is not working)
 
 #+begin_src emacs-lisp
 (use-package evil-multiedit
   :config
   (evil-multiedit-default-keybinds)
   :init
-  (define-key evil-multiedit-mode-map (kbd "'") #'iedit-show/hide-context-lines)) 
+  (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines)) 
 #+end_src
 
 ** Expand region
@@ -333,30 +333,7 @@ Only highlight prog & text buffers
 (use-package expand-region
   :after evil
   :bind
-  ("C-e" . er/expand-region))
-#+end_src
-
-** IEdit
-
-#+begin_src emacs-lisp
-(use-package iedit
-  :config
-  (defun +iedit/quick-expand-up (&optional ARG)
-    (interactive)
-    (unless iedit-mode
-      (iedit-mode ARG))
-    (iedit-expand-up-a-line 1))
-  (defun +iedit/quick-expand-down (&optional ARG)
-    (interactive)
-    (unless iedit-mode
-      (iedit-mode ARG))
-    (iedit-expand-down-a-line 1))
-  :bind
-  ("C-;" . iedit-mode)
-  ("C-M-d" . +iedit/quick-expand-down)
-  ("C-M-S-d" . +iedit/quick-expand-up)
-  :init
-  (define-key iedit-mode-occurrence-keymap (kbd "'") #'iedit-show/hide-context-lines))
+  ("C-+" . er/expand-region))
 #+end_src
 
 * History
