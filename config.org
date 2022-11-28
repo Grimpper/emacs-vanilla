@@ -62,6 +62,12 @@ Escape with ESC:
 #+end_src
 
 ** Window management
+*** Winner
+Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
+#+begin_src emacs-lisp
+(winner-mode)
+#+end_src
+
 *** Ibuffer
 
 #+begin_src emacs-lisp
@@ -282,7 +288,7 @@ Only highlight prog & text buffers
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init '(magit helpful))) ;; Enable for magit
+  (evil-collection-init)) ;; Enable for magit
 #+end_src
 
 *** Surround
@@ -654,6 +660,12 @@ Autocompletion for inline text.
 #+end_src
 
 * Search
+** Wgrep
+wgrep allows you to edit a grep buffer and apply those changes to the file buffer like sed interactively. No need to learn sed script, just learn Emacs.
+#+begin_src emacs-lisp
+(use-package wgrep)
+#+end_src
+
 ** Consult
 
 Adds emacs wrappers on UNIX search commands.
@@ -1384,10 +1396,13 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 ** Color identifiers
 Color Identifiers is a minor mode for Emacs that highlights each source code identifier uniquely based on its name. It
 #+begin_src emacs-lisp
-(use-package color-identifiers-mode)  
+(use-package color-identifiers-mode
+  :hook
+  (prog-mode . color-identifiers-mode))
 
-(add-hook 'lsp-ccls-after-open-hook 'global-color-identifiers-mode)
-(add-hook 'lsp-pyright-after-open-hook 'global-color-identifiers-mode)
+;; Not used for now
+;; (add-hook 'lsp-ccls-after-open-hook 'color-identifiers:regenerate-colors)
+;; (add-hook 'lsp-pyright-after-open-hook 'color-identifiers:regenerate-colors)
 #+end_src
 
 ** Rainbow mode
