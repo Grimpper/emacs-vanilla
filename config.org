@@ -253,16 +253,17 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (use-package evil
   :demand t
-  :bind (:map evil-motion-state-map
-              ;; Unbound confliction keys
-              ("C-e" . nil)
-              ("C-y" . nil)
-              ("C-." . nil) ;; Remove the default binding so embark-act can take precedence
-              ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
-
-              ;; Scrolling bindings
-              ("C-<up>" . evil-scroll-line-up)
-              ("C-<down>" . evil-scroll-line-down))
+  :bind
+  (:map evil-motion-state-map
+        ;; Unbound confliction keys
+        ("C-e" . nil)
+        ("C-y" . nil)
+        ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
+        ;; Scrolling bindings
+        ("C-<up>" . evil-scroll-line-up)
+        ("C-<down>" . evil-scroll-line-down))
+  (:map evil-normal-state-map
+        ("C-." . nil)) ;; Remove the default binding so embark-act can take precedence
   :config
   (evil-mode 1)
   (evil-set-undo-system 'undo-tree)
