@@ -176,6 +176,13 @@ Only highlight prog & text buffers
 
 #+end_src
 
+** Hydra
+
+#+begin_src emacs-lisp
+(use-package hydra)
+#+end_src
+
+
 * Theming
 ** Modeline
 
@@ -252,6 +259,9 @@ Only highlight prog & text buffers
               ;; Unbound confliction keys
               ("C-e" . nil)
               ("C-y" . nil)
+              ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
+
+              ;; Scrolling bindings
               ("C-<up>" . evil-scroll-line-up)
               ("C-<down>" . evil-scroll-line-down))
   :config
@@ -272,7 +282,7 @@ Only highlight prog & text buffers
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init '(magit dired helpful))) ;; Enable for magit
+  (evil-collection-init '(magit helpful))) ;; Enable for magit
 #+end_src
 
 *** Surround
@@ -886,13 +896,21 @@ in that buffer, and invoke something much more basic in their place.
   (good-scroll-mode 1))
 #+end_src
 
-* Org
+* TODO Org
 
+Config:
 #+begin_src emacs-lisp
 (setq org-edit-src-content-indentation 0
       org-startup-indented t)
 
-(keymap-unset evil-motion-state-map "TAB") ;; Remove the default binding so org-cycle can take precedence
+;; This only works if the cursor is in the 'xxx:' part of the link
+(defun +org-return ()
+  (interactive)
+  (if (string= (car (org-thing-at-point)) "link")
+      (org-open-at-point)
+    (evil-ret)))
+
+(evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return) ;; Make RET open links
 #+end_src
 
 ** Fonts
@@ -924,6 +942,14 @@ in that buffer, and invoke something much more basic in their place.
 #+begin_src emacs-lisp
 (use-package org-superstar
   :hook (org-mode . org-superstar-mode))
+#+end_src
+
+** PDF
+
+Open org links to PDF in pdf-tools.
+#+begin_src emacs-lisp
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
 #+end_src
 
 * Shells
@@ -1213,6 +1239,85 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
   :init (setq all-the-icons-dired-monochrome nil))
 #+end_src
 
+* PDF
+
+#+begin_src emacs-lisp
+(use-package pdf-tools
+  :config
+  (pdf-tools-install)
+  :bind (:map pdf-view-mode-map
+              ("\\" . hydra-pdftools/body)
+              ("<s-spc>" .  pdf-view-scroll-down-or-next-page)
+              ("g"  . pdf-view-first-page)
+              ("G"  . pdf-view-last-page)
+              ("l"  . image-forward-hscroll)
+              ("h"  . image-backward-hscroll)
+              ("j"  . pdf-view-next-page)
+              ("k"  . pdf-view-previous-page)
+              ("e"  . pdf-view-goto-page)
+              ("u"  . pdf-view-revert-buffer)
+              ("al" . pdf-annot-list-annotations)
+              ("ad" . pdf-annot-delete)
+              ("aa" . pdf-annot-attachment-dired)
+              ("am" . pdf-annot-add-markup-annotation)
+              ("at" . pdf-annot-add-text-annotation)
+              ("y"  . pdf-view-kill-ring-save)
+              ("i"  . pdf-misc-display-metadata)
+              ("s"  . pdf-occur)
+              ("b"  . pdf-view-set-slice-from-bounding-box)
+              ("r"  . pdf-view-reset-slice)))
+
+;; Hydra menu
+(defhydra hydra-pdftools (:color blue :hint nil)
+        "
+                                                                      ╭───────────┐
+       Move  History   Scale/Fit     Annotations  Search/Link    Do   │ PDF Tools │
+   ╭──────────────────────────────────────────────────────────────────┴───────────╯
+         ^^_g_^^      _B_    ^↧^    _+_    ^ ^     [_al_] list    [_s_] search    [_u_] revert buffer
+         ^^^↑^^^      ^↑^    _H_    ^↑^  ↦ _W_ ↤   [_am_] markup  [_o_] outline   [_i_] info
+         ^^_p_^^      ^ ^    ^↥^    _0_    ^ ^     [_at_] text    [_F_] link      [_d_] dark mode
+         ^^^↑^^^      ^↓^  ╭─^─^─┐  ^↓^  ╭─^ ^─┐   [_ad_] delete  [_f_] search link
+    _h_ ←pag_e_→ _l_  _N_  │ _P_ │  _-_    _b_     [_aa_] dired
+         ^^^↓^^^      ^ ^  ╰─^─^─╯  ^ ^  ╰─^ ^─╯   [_y_]  yank
+         ^^_n_^^      ^ ^  _r_eset slice box
+         ^^^↓^^^
+         ^^_G_^^
+   --------------------------------------------------------------------------------
+        "
+        ("\\" hydra-master/body "back")
+        ("<ESC>" nil "quit")
+        ("al" pdf-annot-list-annotations)
+        ("ad" pdf-annot-delete)
+        ("aa" pdf-annot-attachment-dired)
+        ("am" pdf-annot-add-markup-annotation)
+        ("at" pdf-annot-add-text-annotation)
+        ("y"  pdf-view-kill-ring-save)
+        ("+" pdf-view-enlarge :color red)
+        ("-" pdf-view-shrink :color red)
+        ("0" pdf-view-scale-reset)
+        ("H" pdf-view-fit-height-to-window)
+        ("W" pdf-view-fit-width-to-window)
+        ("P" pdf-view-fit-page-to-window)
+        ("n" pdf-view-next-page-command :color red)
+        ("p" pdf-view-previous-page-command :color red)
+        ("d" pdf-view-dark-minor-mode)
+        ("b" pdf-view-set-slice-from-bounding-box)
+        ("r" pdf-view-reset-slice)
+        ("g" pdf-view-first-page)
+        ("G" pdf-view-last-page)
+        ("e" pdf-view-goto-page)
+        ("o" pdf-outline)
+        ("s" pdf-occur)
+        ("i" pdf-misc-display-metadata)
+        ("u" pdf-view-revert-buffer)
+        ("F" pdf-links-action-perfom)
+        ("f" pdf-links-isearch-link)
+        ("B" pdf-history-backward :color red)
+        ("N" pdf-history-forward :color red)
+        ("l" image-forward-hscroll :color red)
+        ("h" image-backward-hscroll :color red))
+#+end_src
+
 * TODO [1/6] [16%]
 + [ ] Winner undoo
 + [ ] Change focus
@@ -1220,3 +1325,8 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 + [ ] Shackles
 + [ ] Ediff opens control window in a new frame
 + [X] Eshell is slow on the first command (some icons are slow to load)
++ [ ] Org-ret open at point now it wont oppen unless is litteraly inside of the link part not on the description
+
+[[pdf:~/Downloads/pdf-tools as the default PDF viewer in Emacs.pdf::1][test]]
+
+[[https:google.com][google]]
