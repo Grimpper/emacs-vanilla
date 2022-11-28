@@ -182,7 +182,6 @@ Only highlight prog & text buffers
 (use-package hydra)
 #+end_src
 
-
 * Theming
 ** Modeline
 
@@ -241,7 +240,6 @@ Only highlight prog & text buffers
 (setq-default indent-tabs-mode nil)
 #+end_src
 
-
 ** Mouse buttons
 
 #+begin_src emacs-lisp
@@ -259,6 +257,7 @@ Only highlight prog & text buffers
               ;; Unbound confliction keys
               ("C-e" . nil)
               ("C-y" . nil)
+              ("C-." . nil) ;; Remove the default binding so embark-act can take precedence
               ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
 
               ;; Scrolling bindings
@@ -821,74 +820,74 @@ Improved parenthesis.
   (smartparens-global-mode))
 #+end_src
 
-* Extras
-** Nicieties
+* Embark
 
+Embark makes it easy to choose a command to run based on what is near point, both during a minibuffer completion session (in a way familiar to Helm or Counsel users) and in normal buffers.
 #+begin_src emacs-lisp
-;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-;; Vertico commands are hidden in normal buffers.
-(setq read-extended-command-predicate #'command-completion-default-include-p
-      enable-recursive-minibuffers t)
-
-(defun +reload-emacs ()
-    "Reload the Emacs configuration"
-    (interactive)
-    (load-file "~/.emacs.d/init.el"))
-
-;; Supress warnings but enable them on debug
-(if init-file-debug
-      (setq warning-minimum-level :debug)
-    (setq warning-minimum-level :emergency))
-#+end_src
-
-*** Autorevert
-
-#+begin_src emacs-lisp
-(setq revert-without-query '(".*")
-      auto-revert-interval 0.5)
-
-(define-key override-global-map (kbd "C-x r b") #'revert-buffer)
-#+end_src
-
-** Handle very long lines
-
-When the lines in a file are so long that performance could suffer to an
-unacceptable degree, we say "so long" to the slow modes and options enabled
-in that buffer, and invoke something much more basic in their place.
-#+begin_src emacs-lisp
-(use-package so-long
-  :hook (after-init-hook . global-so-long-mode))
-#+end_src
-
-** Scrolling
-
-#+begin_src emacs-lisp
-(use-package good-scroll
-  :config
-  (setq scroll-step 1)
+(use-package embark
   :bind
-  ("<next>" . good-scroll-up-full-screen)
-  ("<prior>" . good-scroll-down-full-screen)
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
   :init
-  (good-scroll-mode 1))
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
-* TODO Org
+* Org
 
 Config:
 #+begin_src emacs-lisp
 (setq org-edit-src-content-indentation 0
-      org-startup-indented t)
+      org-startup-indented t
+      org-ellipsis "  ")
 
 ;; This only works if the cursor is in the 'xxx:' part of the link
 (defun +org-return ()
   (interactive)
-  (if (string= (car (org-thing-at-point)) "link")
+  (if (string= (car (org-element-context)) "link")
       (org-open-at-point)
     (evil-ret)))
 
 (evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return) ;; Make RET open links
 #+end_src
+
+** Markers
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :hook
+  (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-trigger 'manual
+        org-hide-emphasis-markers t
+        org-appear-autolinks t
+        org-pretty-entities t
+        org-appear-autoentities t
+        org-appear-autosubmarkers t)
+  :init
+  (add-hook 'org-mode-hook (lambda ()
+                             (add-hook 'evil-insert-state-entry-hook
+                                       #'org-appear-manual-start
+                                       nil
+                                       t)
+                             (add-hook 'evil-insert-state-exit-hook
+                                       #'org-appear-manual-stop
+                                       nil
+                                       t))))
+#+end_src
+
 
 ** Fonts
 
@@ -1295,15 +1294,136 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
         ("h" image-backward-hscroll :color red))
 #+end_src
 
-* TODO [1/6] [16%]
+* DIFF
+
+By default ediff spawns a new frame to display files to be compared or merged. Remove that. Also save window layout before ediff and restore on exit.
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain
+      ediff-split-window-function 'split-window-horizontally)
+
+;; Some custom configuration to ediff
+(defvar my-ediff-bwin-config nil "Window configuration before ediff.")
+(defcustom my-ediff-bwin-reg ?b
+  "*Register to be set up to hold `my-ediff-bwin-config'
+    configuration.")
+
+(defvar my-ediff-awin-config nil "Window configuration after ediff.")
+(defcustom my-ediff-awin-reg ?e
+  "*Register to be used to hold `my-ediff-awin-config' window
+    configuration.")
+
+(defun my-ediff-bsh ()
+  "Function to be called before any buffers or window setup for
+    ediff."
+  (setq my-ediff-bwin-config (current-window-configuration))
+  (when (characterp my-ediff-bwin-reg)
+    (set-register my-ediff-bwin-reg
+    		  (list my-ediff-bwin-config (point-marker)))))
+
+(defun my-ediff-ash ()
+  "Function to be called after buffers and window setup for ediff."
+  (setq my-ediff-awin-config (current-window-configuration))
+  (when (characterp my-ediff-awin-reg)
+    (set-register my-ediff-awin-reg
+    		  (list my-ediff-awin-config (point-marker)))))
+
+(defun my-ediff-qh ()
+  "Function to be called when ediff quits."
+  (when my-ediff-bwin-config
+    (set-window-configuration my-ediff-bwin-config)))
+
+(add-hook 'ediff-before-setup-hook 'my-ediff-bsh)
+(add-hook 'ediff-after-setup-windows-hook 'my-ediff-ash 'append)
+(add-hook 'ediff-quit-hook 'my-ediff-qh)
+#+end_src
+
+* Syntax highlighting
+** Color identifiers
+Color Identifiers is a minor mode for Emacs that highlights each source code identifier uniquely based on its name. It
+#+begin_src emacs-lisp
+(use-package color-identifiers-mode)  
+
+(add-hook 'lsp-ccls-after-open-hook 'global-color-identifiers-mode)
+(add-hook 'lsp-pyright-after-open-hook 'global-color-identifiers-mode)
+#+end_src
+
+** Rainbow mode
+Highlight hex digits
+#+begin_src emacs-lisp
+(use-package rainbow-mode)
+
+;; Rainbow mode colors cannot be displayed properly over hl-line-mode. Disable when toggling rainbow-mode.
+(add-hook 'rainbow-mode-hook (lambda ()
+                               (if (bound-and-true-p rainbow-mode)
+                                   (hl-line-mode -1)
+                                 (hl-line-mode 1))))
+#+end_src
+
+** Prism
+Prism disperses lisp forms (and other languages) into a spectrum of color by depth. It’s similar to rainbow-blocks, but it respects existing non-color face properties, and allows flexible configuration of faces and colors. It also optionally colorizes strings and/or comments by code depth in a similar, customizable way.
+#+begin_src emacs-lisp
+(use-package prism)
+#+end_src
+
+If the colors are not pleasant use =prism-randomize-colors=.
+
+* Extras
+** Nicieties
+
+#+begin_src emacs-lisp
+;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+;; Vertico commands are hidden in normal buffers.
+(setq read-extended-command-predicate #'command-completion-default-include-p
+      enable-recursive-minibuffers t)
+
+(defun +reload-emacs ()
+    "Reload the Emacs configuration"
+    (interactive)
+    (load-file "~/.emacs.d/init.el"))
+
+;; Supress warnings but enable them on debug
+(if init-file-debug
+      (setq warning-minimum-level :debug)
+    (setq warning-minimum-level :emergency))
+#+end_src
+
+*** Autorevert
+
+#+begin_src emacs-lisp
+(setq revert-without-query '(".*")
+      auto-revert-interval 0.5)
+
+(define-key override-global-map (kbd "C-x r b") #'revert-buffer)
+#+end_src
+
+** Handle very long lines
+
+When the lines in a file are so long that performance could suffer to an
+unacceptable degree, we say "so long" to the slow modes and options enabled
+in that buffer, and invoke something much more basic in their place.
+#+begin_src emacs-lisp
+(use-package so-long
+  :hook (after-init-hook . global-so-long-mode))
+#+end_src
+
+** Scrolling
+
+#+begin_src emacs-lisp
+(use-package good-scroll
+  :config
+  (setq scroll-step 1)
+  :bind
+  ("<next>" . good-scroll-up-full-screen)
+  ("<prior>" . good-scroll-down-full-screen)
+  :init
+  (good-scroll-mode 1))
+#+end_src
+
+* TODO [2/7] [28%]
 + [ ] Winner undoo
 + [ ] Change focus
 + [ ] Popper
 + [ ] Shackles
 + [ ] Ediff opens control window in a new frame
 + [X] Eshell is slow on the first command (some icons are slow to load)
-+ [ ] Org-ret open at point now it wont oppen unless is litteraly inside of the link part not on the description
-
-[[pdf:~/Downloads/pdf-tools as the default PDF viewer in Emacs.pdf::1][test]]
-
-[[https:google.com][google]]
++ [X] Org-ret open at point now it wont oppen unless is litteraly inside of the link part not on the description
