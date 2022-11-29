@@ -235,6 +235,14 @@ Only highlight prog & text buffers
   :after (treemacs magit))
 #+end_src
 
+** Eros
+
+#+begin_src emacs-lisp
+(use-package eros
+  :init
+  (eros-mode))
+#+end_src
+
 * Theming
 ** Modeline
 
