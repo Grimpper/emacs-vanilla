@@ -168,6 +168,26 @@ Only highlight prog & text buffers
   (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
+*** VC fringe diff
+
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :config
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  (with-eval-after-load 'evil
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "q" 'diff-hl-inline-popup-hide)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "p" 'diff-hl-show-hunk-previous)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "n" 'diff-hl-show-hunk-next)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "r" 'diff-hl-show-hunk-revert-hunk)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "c" 'diff-hl-show-hunk-copy-original-text))
+  :init
+  (global-diff-hl-mode)
+  (diff-hl-flydiff-mode)
+  (diff-hl-dired-mode)
+  (diff-hl-show-hunk-mouse-mode))
+#+end_src
+
 ** Minimap
 
 #+begin_src emacs-lisp
@@ -1517,5 +1537,6 @@ in that buffer, and invoke something much more basic in their place.
 + [ ] Popper
 + [ ] Shackles
 + [ ] Ediff opens control window in a new frame
++ [ ] Evil-collection should provide bindings for diff-hl
 + [X] Eshell is slow on the first command (some icons are slow to load)
 + [X] Org-ret open at point now it wont oppen unless is litteraly inside of the link part not on the description
