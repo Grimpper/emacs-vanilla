@@ -12,3 +12,5 @@
 /places
 /package-quickstart.elc
 /eln-cache/
+/straight/
+/*.eld
