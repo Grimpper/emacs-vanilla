@@ -986,7 +986,8 @@ Config:
       (org-open-at-point)
     (evil-ret)))
 
-(evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return) ;; Make RET open links
+(with-eval-after-load 'evil
+  (evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return)) ;; Make RET open links
 #+end_src
 
 ** Fonts
