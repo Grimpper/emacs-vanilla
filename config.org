@@ -584,6 +584,7 @@ Enable icons on the completion framework.
 Autocompletion for inline text.
 #+begin_src emacs-lisp
 (use-package corfu
+  :straight (:files (:defaults "extensions/*")) ;; Load the extensions
   ;; Optional customizations
   :custom
   (corfu-cycle t)                  ; Allows cycling through candidates
@@ -600,8 +601,6 @@ Autocompletion for inline text.
   :bind (:map corfu-map
               ("C-SPC" . corfu-insert-separator)
               ("RET" . nil))
-  :init
-  (global-corfu-mode)
   :config
   (defun corfu-enable-always-in-minibuffer ()
     "Enable Corfu in the minibuffer if Vertico/Mct are not active."
@@ -609,18 +608,9 @@ Autocompletion for inline text.
                 (bound-and-true-p vertico--input))
       (setq-local corfu-auto t)
       (corfu-mode)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer))
-#+end_src
-
-*** TODO Corfu history
-
-Use the straight implementation to load the extensions like on vertico
-#+begin_src emacs-lisp
-(use-package corfu-history
-  :straight nil
-  :after corfu
-  :load-path "~/.emacs.d/straight/repos/corfu/extensions"
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer)
   :init
+  (global-corfu-mode)
   (corfu-history-mode))
 #+end_src
 
