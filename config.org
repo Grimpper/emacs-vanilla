@@ -66,6 +66,30 @@ Escape with ESC:
 #+end_src
 
 ** Window management
+
+#+begin_src emacs-lisp :tangle no
+;; Create prefix
+(define-prefix-command '+window-map)
+(define-key +window-map (kbd "w") #'evil-window-next)
+(define-key +window-map (kbd "W") #'evil-window-prev)
+(define-key +window-map (kbd "C-W") #'evil-window-prev)
+(define-key +window-map (kbd "C-w") #'evil-window-next)
+(define-key +window-map (kbd "r") #'evil-window-rotate-downwards)
+(define-key +window-map (kbd "R") #'evil-window-rotate-upwards)
+(define-key +window-map (kbd "C-r") #'evil-window-rotate-downwards)
+(define-key +window-map (kbd "C-R") #'evil-window-rotate-upwards)
+(define-key +window-map (kbd "=") #'balance-windows)
+(define-key +window-map (kbd "a") #'ace-window)
+
+;; Unbind evil-keybinds and bind +window-map
+(with-eval-after-load 'evil-maps
+  (dolist (map '(evil-motion-state-map
+                 evil-insert-state-map
+                 evil-emacs-state-map))
+    (define-key (eval map) (kbd "C-w") +window-map)))
+#+end_src
+
+
 *** Winner
 Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
 #+begin_src emacs-lisp
@@ -438,7 +462,6 @@ Undo system that allows tree visualization.
   (global-undo-tree-mode)
   :config
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))
-        undo-tree-visualizer-timestamps t
         undo-tree-visualizer-diff t))
 #+end_src
 
