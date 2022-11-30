@@ -343,8 +343,10 @@ Only highlight prog & text buffers
 
 (use-package evil-collection
   :after evil
-  :config
-  (evil-collection-init)) ;; Enable for magit
+  :init
+  (with-eval-after-load 'evil-collection ;; After
+    (setq evil-collection-mode-list (remq 'org evil-collection-mode-list)) ;; Remove org form the list, it's bugged in visual mode. This needs to be in :init to not be overrided by the default values when loaded
+    (evil-collection-init))) ;; Enable for magit
 #+end_src
 
 *** Surround
