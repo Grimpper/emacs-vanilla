@@ -446,6 +446,16 @@ Only highlight prog & text buffers
   (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines)) 
 #+end_src
 
+*** Easymotion
+
+#+begin_src emacs-lisp
+(use-package evil-easymotion
+  :bind (:map evilem-map
+              ("SPC" . evil-avy-goto-char-timer))
+  :init
+  (evilem-default-keybindings "gs"))
+#+end_src
+
 ** Expand region
 
 #+begin_src emacs-lisp
@@ -453,6 +463,13 @@ Only highlight prog & text buffers
   :after evil
   :bind
   ("C-+" . er/expand-region))
+#+end_src
+
+** Avy
+
+Avy is a GNU Emacs package for jumping to visible text using a char-based decision tree
+#+begin_src emacs-lisp
+(use-package avy)
 #+end_src
 
 * History
