@@ -1497,7 +1497,7 @@ Color Identifiers is a minor mode for Emacs that highlights each source code ide
 #+begin_src emacs-lisp
 (use-package color-identifiers-mode
   :hook
-  (prog-mode . color-identifiers-mode))
+  (after-init . global-color-identifiers-mode))
 
 ;; Not used for now
 ;; (add-hook 'lsp-ccls-after-open-hook 'color-identifiers:regenerate-colors)
