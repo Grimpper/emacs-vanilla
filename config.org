@@ -300,6 +300,9 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
+(with-eval-after-load 'ef-themes
+  (load-theme 'ef-night)
+  (kaolin-treemacs-theme))
 #+end_src
 
 *** Ef
@@ -333,10 +336,7 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (use-package kaolin-themes
   :custom
-  (kaolin-themes-italic-comments t)
-  :config
-  (load-theme 'kaolin-ocean t)
-  (kaolin-treemacs-theme))
+  (kaolin-themes-italic-comments t))
 #+end_src
 
 ** Fonts
