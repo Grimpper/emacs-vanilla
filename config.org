@@ -1593,6 +1593,44 @@ in that buffer, and invoke something much more basic in their place.
   :straight (screenshot :type git :host github :repo "tecosaur/screenshot"))
 #+end_src
 
+* Programming
+** Syntax checkers
+*** Flycheck
+
+Use the more modern syntax checker (Flycheck) over the built-in Flymake. LSP mode will automatically pick it up.
+#+begin_src emacs-lisp
+(use-package flycheck)
+#+end_src
+
+** Language server providers
+*** Eglot
+
+Lightweight LSP client.
+#+begin_src emacs-lisp
+(use-package eglot
+  :hook
+  (eglot-managed-mode . (lambda ()
+                               (flymake-mode -1) ;; Disable the old flymake-mode in favor of flycheck-mode
+                               (flycheck-mode 1))))
+#+end_src
+
+*** TODO LSP
+
+Full fledged LSP client.
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :custom
+  (lsp-completion-provider :none)) ;; Remove the providers so Corfu can take precedence.
+#+end_src
+
+** Language servers
+
+*** CCLS
+
+#+begin_src emacs-lisp
+(use-package ccls)
+#+end_src
+
 * TODO [2/7] [28%]
 + [ ] Winner undoo
 + [ ] Change focus
