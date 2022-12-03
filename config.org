@@ -1619,6 +1619,13 @@ Full fledged LSP client.
   (lsp-completion-provider :none)) ;; Remove the providers so Corfu can take precedence.
 #+end_src
 
+**** UI
+
+Fancy sideline, popup documentation, VScode-like peek UI, etc.
+#+begin_src emacs-lisp
+(use-package lsp-ui)
+#+end_src
+
 ** Language servers
 
 *** CCLS
