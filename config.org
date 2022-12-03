@@ -195,6 +195,25 @@ Only highlight prog & text buffers
   (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
+*** Quoted
+
+#+begin_src emacs-lisp
+(use-package highlight-quoted
+  :straight (highlight-quoted :type git :host github :repo "Fanael/highlight-quoted")
+  :hook
+  (emacs-lisp-mode . highlight-quoted-mode))
+#+end_src
+
+*** Defined
+
+#+begin_src emacs-lisp
+(use-package highlight-defined
+  :hook
+  ;; (eshell-mode . rainbow-delimiters-mode) ;; Breaks eshell prompt coloring
+  (emacs-lisp-mode . highlight-defined-mode))
+#+end_src
+
+
 *** VC fringe diff
 
 #+begin_src emacs-lisp
@@ -286,9 +305,7 @@ Only highlight prog & text buffers
 *** Ef
 
 #+begin_src emacs-lisp
-(use-package ef-themes
-  :config
-  (load-theme 'ef-night t))
+(use-package ef-themes)
 #+end_src
 
 *** Doom
@@ -309,6 +326,17 @@ Only highlight prog & text buffers
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+#+end_src
+
+*** Kaolin
+
+#+begin_src emacs-lisp
+(use-package kaolin-themes
+  :custom
+  (kaolin-themes-italic-comments t)
+  :config
+  (load-theme 'kaolin-ocean t)
+  (kaolin-treemacs-theme))
 #+end_src
 
 ** Fonts
