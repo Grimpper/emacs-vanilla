@@ -1565,10 +1565,14 @@ Add project management to emacs.
 *** Autorevert
 
 #+begin_src emacs-lisp
-(setq revert-without-query '(".*")
-      auto-revert-interval 0.5)
+(setq auto-revert-interval 0.5
+      global-auto-revert-non-file-buffers t ;; Revert buffers like Dired
+      auto-revert-verbose nil) ;; Don't ask when reverting
 
 (define-key override-global-map (kbd "C-x r b") #'revert-buffer)
+
+;; Auto revert files when they change
+(global-auto-revert-mode t)
 #+end_src
 
 ** Handle very long lines
