@@ -442,7 +442,6 @@ Only highlight prog & text buffers
   :after evil
   :config
   (evil-multiedit-default-keybinds)
-  :init
   (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines)) 
 #+end_src
 
