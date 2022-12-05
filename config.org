@@ -218,9 +218,13 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (use-package diff-hl
+  :hook
+  (dired-mode . diff-hl-dired-mode)
+  (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh)
+  :custom
+  (diff-hl-side 'right)
   :config
-  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
   (with-eval-after-load 'evil
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "q" 'diff-hl-inline-popup-hide)
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "p" 'diff-hl-show-hunk-previous)
@@ -230,7 +234,6 @@ Only highlight prog & text buffers
   :init
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
-  (diff-hl-dired-mode)
   (diff-hl-show-hunk-mouse-mode))
 #+end_src
 
