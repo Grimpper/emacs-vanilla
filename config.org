@@ -1698,7 +1698,10 @@ Full fledged LSP client.
 Fancy sideline, popup documentation, VScode-like peek UI, etc.
 #+begin_src emacs-lisp
 (use-package lsp-ui
-  :after lsp-mode)
+  :after lsp-mode
+  :bind (:map lsp-ui-mode-map
+              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . lsp-ui-peek-find-references)))
 #+end_src
 
 **** Treemacs
@@ -1708,6 +1711,15 @@ Fancy sideline, popup documentation, VScode-like peek UI, etc.
   :after lsp-mode
   :init
   (lsp-treemacs-sync-mode))
+#+end_src
+
+**** Consult
+
+#+begin_src emacs-lisp
+(use-package consult-lsp
+  :after lsp-mode
+  :bind (:map lsp-mode-map
+              ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
 ** Language servers
