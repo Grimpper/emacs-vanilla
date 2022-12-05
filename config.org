@@ -471,6 +471,14 @@ Avy is a GNU Emacs package for jumping to visible text using a char-based decisi
 (use-package avy)
 #+end_src
 
+** Iedit
+
+#+begin_src emacs-lisp
+(use-package iedit
+  :init
+  (set-face-attribute 'iedit-occurrence nil :inherit 'lazy-highlight)) ;; Set iedit face to one that won't collide with lsp-face-highlight-textual
+#+end_src
+
 * History
 ** Backups
 Backup files preserve file contents prior to the current session.
