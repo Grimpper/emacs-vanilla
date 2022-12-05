@@ -1696,9 +1696,11 @@ Full fledged LSP client.
 (use-package lsp-mode
   :hook
   (lsp-mode . lsp-enable-which-key-integration)
+  :custom
+  (lsp-keymap-prefix "C-c l")
+  (lsp-completion-provider :none) ;; Remove the providers so Corfu can take precedence.
   :init
-  (setq lsp-keymap-prefix "C-c l"
-        lsp-completion-provider :none)) ;; Remove the providers so Corfu can take precedence.
+  (lsp-dired-mode))
 #+end_src
 
 **** UI
@@ -1714,6 +1716,7 @@ Fancy sideline, popup documentation, VScode-like peek UI, etc.
 
 **** Treemacs
 
+Integration between lsp-mode and treemacs and implementation of treeview controls using treemacs as a tree renderer.
 #+begin_src emacs-lisp
 (use-package lsp-treemacs
   :after lsp-mode
@@ -1723,6 +1726,7 @@ Fancy sideline, popup documentation, VScode-like peek UI, etc.
 
 **** Consult
 
+Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
 #+begin_src emacs-lisp
 (use-package consult-lsp
   :after lsp-mode
