@@ -1687,15 +1687,28 @@ Lightweight LSP client.
 Full fledged LSP client.
 #+begin_src emacs-lisp
 (use-package lsp-mode
-  :custom
-  (lsp-completion-provider :none)) ;; Remove the providers so Corfu can take precedence.
+  :hook
+  (lsp-mode . lsp-enable-which-key-integration)
+  :init
+  (setq lsp-keymap-prefix "C-c l"
+        lsp-completion-provider :none)) ;; Remove the providers so Corfu can take precedence.
 #+end_src
 
 **** UI
 
 Fancy sideline, popup documentation, VScode-like peek UI, etc.
 #+begin_src emacs-lisp
-(use-package lsp-ui)
+(use-package lsp-ui
+  :after lsp-mode)
+#+end_src
+
+**** Treemacs
+
+#+begin_src emacs-lisp
+(use-package lsp-treemacs
+  :after lsp-mode
+  :init
+  (lsp-treemacs-sync-mode))
 #+end_src
 
 ** Language servers
