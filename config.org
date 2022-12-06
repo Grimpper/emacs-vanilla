@@ -1412,6 +1412,34 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 
 * Dired
 
+Load the extra dired libraries.
+#+begin_src emacs-lisp
+(require 'dired-x)
+(require 'dired-aux)
+#+end_src
+
+** Filtering
+
+#+begin_src emacs-lisp
+(use-package dired-filter
+  :hook
+  (dired-mode . dired-filter-group-mode)
+  :custom
+  (dired-filter-group-saved-groups
+   '(("default"
+      ("PDF"
+       (extension . "pdf"))
+      ("LaTeX"
+       (extension "tex" "bib"))
+      ("Org"
+       (extension . "org"))
+      ("Archives"
+       (extension "zip" "rar" "gz" "bz2" "tar"))))))
+#+end_src
+
+** Theming
+
+Add icons.
 #+begin_src emacs-lisp
 (use-package all-the-icons-dired
   :hook
