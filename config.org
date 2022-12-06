@@ -755,6 +755,13 @@ Autocompletion for inline text.
 
 #+begin_src emacs-lisp
 (use-package yasnippet
+  :config
+  (defun +yas/org-last-src-lang ()
+    "Return the language of the last src-block, if it exists."
+    (save-excursion
+      (beginning-of-line)
+      (when (re-search-backward "^[ \t]*#\\+begin_src" nil t)
+        (org-element-property :language (org-element-context)))))
   :init (yas-global-mode 1))
 
 (use-package yasnippet-snippets)
