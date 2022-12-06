@@ -350,6 +350,16 @@ Only highlight prog & text buffers
    '((font . "JetBrainsMono Nerd Font-14")))
 #+end_src
 
+** Icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p)
+  :config
+  (if (not (x-list-fonts "all-the-icons"))
+      (all-the-icons-install-fonts)))
+#+end_src
+
 * Editing functionality
 ** Tabs
 
