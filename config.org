@@ -1120,6 +1120,18 @@ Open org links to PDF in pdf-tools.
   :hook (org-mode . org-pdftools-setup-link))
 #+end_src
 
+** Sticky header
+
+#+begin_src emacs-lisp
+(use-package org-sticky-header
+  :hook
+  (org-mode . org-sticky-header-mode)
+  :config
+  (setq org-sticky-header-show-keyword nil
+        org-sticky-header-heading-star ""
+        org-sticky-header-full-path 'reversed))
+#+end_src
+
 * Shells
 ** Vterm
 
