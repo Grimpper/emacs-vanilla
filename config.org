@@ -304,7 +304,8 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-  (load-theme 'ef-night)
+  (load-theme 'ef-night))
+(with-eval-after-load 'kaolin-themes
   (kaolin-treemacs-theme))
 #+end_src
 
@@ -381,7 +382,6 @@ Only highlight prog & text buffers
   (:map evil-normal-state-map
         ("C-." . nil)) ;; Remove the default binding so embark-act can take precedence
   :config
-  (setq evil-want-keybinding nil)
   (evil-mode 1)
   (evil-set-undo-system 'undo-tree)
   (mapc (lambda (mode)
@@ -394,7 +394,8 @@ Only highlight prog & text buffers
   :init
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
-        evil-kill-on-visual-paste nil))
+        evil-kill-on-visual-paste nil
+        evil-want-keybinding nil))
 
 (use-package evil-collection
   :after evil
