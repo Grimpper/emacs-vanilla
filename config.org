@@ -1522,6 +1522,8 @@ This package defines function dired-subtree-insert which instead inserts the sub
 
 ** Theming
 
+*** Icons
+
 Add icons.
 #+begin_src emacs-lisp
 (use-package all-the-icons-dired
@@ -1529,6 +1531,8 @@ Add icons.
   (dired-mode . all-the-icons-dired-mode)
   :init (setq all-the-icons-dired-monochrome nil))
 #+end_src
+
+*** Extra font locks
 
 Extra font lock rules for a more colourful dired (eg. font lock on permissions).
 #+begin_src emacs-lisp
@@ -1538,7 +1542,7 @@ Extra font lock rules for a more colourful dired (eg. font lock on permissions).
 #+end_src
 
 This package adds more customizable highlighting for files in dired listings. The group dired-faces provides only nine faces and isn't very fine-grained.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package dired-rainbow
   :config
   (progn
