@@ -110,8 +110,8 @@ Winner Mode is a global minor mode that allows you to “undo” and “redo” 
 #+end_src
 
 **** VC
-Show files separated on version controlled projects.
 
+Show files separated on version controlled projects.
 #+begin_src emacs-lisp
 (use-package ibuffer-vc
   :hook
@@ -944,8 +944,16 @@ A fantastic package that uses regex to find possible matches of the target at po
 * Version control
 ** Magit
 
+Magit is a complete text-based user interface to Git.
 #+begin_src emacs-lisp
 (use-package magit)
+#+end_src
+
+** Gitignore
+
+#+begin_src emacs-lisp
+(use-package gitignore
+  :straight (gitignore :type git :host github :repo "syohex/emacs-gitignore"))
 #+end_src
 
 * Automatic insertions
