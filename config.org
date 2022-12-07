@@ -1926,12 +1926,20 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
               ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
-** Language servers
-
-*** CCLS
+** C
+*** Language servers
+**** CCLS
 
 #+begin_src emacs-lisp
 (use-package ccls)
+#+end_src
+
+** HTML
+*** Htmlize
+
+This package converts the buffer text and the associated decorations to HTML. It allows org export to colorize src blocks
+#+begin_src emacs-lisp
+(use-package htmlize)
 #+end_src
 
 * TODO [2/7] [28%]
