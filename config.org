@@ -390,7 +390,9 @@ Only highlight prog & text buffers
         ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
         ;; Scrolling bindings
         ("C-<up>" . evil-scroll-line-up)
-        ("C-<down>" . evil-scroll-line-down))
+        ("C-<down>" . evil-scroll-line-down)
+        ;; Jumping
+        ("g D" . xref-find-definitions-other-window))
   (:map evil-normal-state-map
         ("C-." . nil)) ;; Remove the default binding so embark-act can take precedence
   :config
@@ -1890,6 +1892,13 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
   :after lsp-mode
   :bind (:map lsp-mode-map
               ([remap xref-find-apropos] . consult-lsp-symbols)))
+#+end_src
+
+*** TODO Jedi
+
+Jedi.el is a Python auto-completion package for Emacs. It aims at helping your Python coding in a non-destructive way. It also helps you to find information about Python objects, such as docstring, function arguments and code location.
+#+begin_src emacs-lisp :tangle no
+(use-package jedi)
 #+end_src
 
 ** Language servers
