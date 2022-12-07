@@ -1455,24 +1455,21 @@ Display options for dired. They are the same as the ls command:
 This package defines function dired-subtree-insert which instead inserts the subdirectory directly below its line in the original listing, and indent the listing of subdirectory to resemble a tree-like structure (somewhat similar to tree(1) except the pretty graphics). The tree display is somewhat more intuitive than the default "flat" subdirectory manipulation provided by i.
 #+begin_src emacs-lisp
 (use-package dired-subtree
-  :bind ;; Binds for emacs editing
-  (:map dired-mode-map
-              ("s" . nil) ;; Free the key
-              ("s i" . dired-subtree-insert)
-              ("s d" . dired-subtree-remove))
-  :init
-  ;; Binds for evil editing mode
-  (with-eval-after-load 'evil-collection
-    (evil-define-key* 'normal dired-mode-map "si" 'dired-subtree-insert)
-    (evil-define-key* 'normal dired-mode-map "sd" 'dired-subtree-remove)))
+  :bind (:map dired-mode-map
+              ("<tab>" . dired-subtree-toggle)))
 #+end_src
 
 ** Filtering
 
 #+begin_src emacs-lisp
 (use-package dired-filter
-  :bind (:map dired-mode-map
-              ("C-c g" . dired-filter-group-mode))
+  :bind
+  (:map dired-mode-map
+        ("C-c g" . dired-filter-group-mode))
+  (:map dired-filter-group-mode-map
+        ("<tab>" . nil) ;; Free unused keybinding
+        ("C-<tab>" . dired-filter-group-forward-drawer)
+        ("M-<tab>" . dired-filter-group-backward-drawer))
   :hook
   (dired-mode . dired-filter-group-mode)
   :custom
