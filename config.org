@@ -227,7 +227,7 @@ Only highlight prog & text buffers
   :custom
   (diff-hl-side 'right)
   :config
-  (with-eval-after-load 'evil
+  (with-eval-after-load 'evil-collection
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "q" 'diff-hl-inline-popup-hide)
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "p" 'diff-hl-show-hunk-previous)
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "n" 'diff-hl-show-hunk-next)
@@ -1064,7 +1064,7 @@ Config:
       (org-open-at-point)
     (evil-ret)))
 
-(with-eval-after-load 'evil
+(with-eval-after-load 'evil-collection
   (evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return)) ;; Make RET open links
 #+end_src
 
@@ -1448,6 +1448,23 @@ Display options for dired. They are the same as the ls command:
 
 #+begin_src emacs-lisp
 (setq dired-listing-switches "-Alht --group-directories-first")
+#+end_src
+
+** Subtree
+
+This package defines function dired-subtree-insert which instead inserts the subdirectory directly below its line in the original listing, and indent the listing of subdirectory to resemble a tree-like structure (somewhat similar to tree(1) except the pretty graphics). The tree display is somewhat more intuitive than the default "flat" subdirectory manipulation provided by i.
+#+begin_src emacs-lisp
+(use-package dired-subtree
+  :bind ;; Binds for emacs editing
+  (:map dired-mode-map
+              ("s" . nil) ;; Free the key
+              ("s i" . dired-subtree-insert)
+              ("s d" . dired-subtree-remove))
+  :init
+  ;; Binds for evil editing mode
+  (with-eval-after-load 'evil-collection
+    (evil-define-key* 'normal dired-mode-map "si" 'dired-subtree-insert)
+    (evil-define-key* 'normal dired-mode-map "sd" 'dired-subtree-remove)))
 #+end_src
 
 ** Filtering
