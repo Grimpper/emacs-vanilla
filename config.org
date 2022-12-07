@@ -1928,10 +1928,29 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
               ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
+** Debuggers
+
+*** TODO DAP
+
+#+begin_src emacs-lisp
+(use-package dap-mode
+  :init
+  (dap-auto-configure-mode))
+#+end_src
+
+
+** Python
+
+Load the python debugger library.
+#+begin_src emacs-lisp
+(require 'dap-python)
+#+end_src
+
 ** C
 *** Language servers
 **** CCLS
 
+This is needed to provide support for CCLS to LSP-mode.
 #+begin_src emacs-lisp
 (use-package ccls)
 #+end_src
