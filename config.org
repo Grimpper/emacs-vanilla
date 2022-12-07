@@ -1426,6 +1426,26 @@ Load the extra dired libraries.
 (require 'dired-aux)
 #+end_src
 
+Display options for dired. They are the same as the ls command:
+#+begin_quote
+=-A, --almost-all=
+      do not list implied . and ..
+
+=-l=    use a long listing format
+
+=-h, --human-readable=
+      with -l and -s, print sizes like 1K 234M 2G etc.
+
+=-t=    sort by time, newest first; see --time
+
+=--group-directories-first=
+      roup directories before files;
+#+end_quote
+
+#+begin_src emacs-lisp
+(setq dired-listing-switches "-Alht --group-directories-first")
+#+end_src
+
 ** Filtering
 
 #+begin_src emacs-lisp
