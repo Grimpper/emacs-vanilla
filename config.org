@@ -41,6 +41,8 @@ Config:
 (scroll-bar-mode -1)
 (global-visual-line-mode 1)
 
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 (setq x-stretch-cursor t
       initial-scratch-message nil
       inhibit-default-init t
@@ -1452,6 +1454,8 @@ Display options for dired. They are the same as the ls command:
 
 #+begin_src emacs-lisp
 (use-package dired-filter
+  :bind (:map dired-mode-map
+              ("C-c g" . dired-filter-group-mode))
   :hook
   (dired-mode . dired-filter-group-mode)
   :custom
@@ -1892,13 +1896,6 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
   :after lsp-mode
   :bind (:map lsp-mode-map
               ([remap xref-find-apropos] . consult-lsp-symbols)))
-#+end_src
-
-*** TODO Jedi
-
-Jedi.el is a Python auto-completion package for Emacs. It aims at helping your Python coding in a non-destructive way. It also helps you to find information about Python objects, such as docstring, function arguments and code location.
-#+begin_src emacs-lisp :tangle no
-(use-package jedi)
 #+end_src
 
 ** Language servers
