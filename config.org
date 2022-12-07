@@ -1517,6 +1517,46 @@ This package defines function dired-subtree-insert which instead inserts the sub
        (extension . "-.*x.*"))))))
 #+end_src
 
+** Collapse
+
+Often times we find ourselves in a situation where a single file or directory is nested in a chain of nested directories with no other content. This is sometimes due to various mandatory layouts demanded by packaging tools or tools generating these deeply-nested "unique" paths to disambiguate architectures or versions (but we often use only one anyway). If the user wants to access these directories they have to quite needlessly drill-down through varying number of "uninteresting" directories to get to the content.
+#+begin_src emacs-lisp
+(use-package dired-collapse
+  :hook
+  (dired-mode . dired-collapse-mode))
+#+end_src
+
+** External open
+
+This package adds a mechanism to add "hooks" to dired-find-file that will run before emacs tries its own mechanisms to open the file, thus enabling you to launch other application or code and suspend the default behaviour.
+#+begin_src emacs-lisp
+(use-package dired-open
+  :bind (:map dired-mode-map
+              ("C-<return>" . dired-open-xdg)
+              ("C-c o" . dired-open-xdg)))
+#+end_src
+
+** Ranger
+
+This package implements useful features present in the ranger file manager which are missing in dired. This includes multi-stage copying with ~dired-ranger-copy~
+#+begin_src emacs-lisp
+(use-package dired-ranger
+  :bind (:map dired-mode-map
+              ("C-c y" . dired-ranger-copy)
+              ("C-c p" . dired-ranger-paste)
+              ("C-c m" . dired-ranger-move)))
+#+end_src
+
+** Rsync
+
+This repository provides a transient version called dired-transient-rsync. This wraps the command in a `magit` like transient interface allowing you to tweaks the parameters for your call.
+#+begin_src emacs-lisp
+(use-package dired-rsync
+  :bind (:map dired-mode-map
+              ("C-c r" . dired-rsync-transient)))
+#+end_src
+
+
 ** Theming
 
 *** Icons
@@ -1564,16 +1604,6 @@ This package adds more customizable highlighting for files in dired listings. Th
     (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
     (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
     ))
-#+end_src
-
-** External open
-
-This package adds a mechanism to add "hooks" to dired-find-file that will run before emacs tries its own mechanisms to open the file, thus enabling you to launch other application or code and suspend the default behaviour.
-#+begin_src emacs-lisp
-(use-package dired-open
-  :bind (:map dired-mode-map
-              ("C-<return>" . dired-open-xdg)
-              ("C-c o" . dired-open-xdg)))
 #+end_src
 
 * PDF
