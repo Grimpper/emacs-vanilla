@@ -1569,6 +1569,16 @@ This package adds more customizable highlighting for files in dired listings. Th
     ))
 #+end_src
 
+** External open
+
+This package adds a mechanism to add "hooks" to dired-find-file that will run before emacs tries its own mechanisms to open the file, thus enabling you to launch other application or code and suspend the default behaviour.
+#+begin_src emacs-lisp
+(use-package dired-open
+  :bind (:map dired-mode-map
+              ("C-<return>" . dired-open-xdg)
+              ("C-c o" . dired-open-xdg)))
+#+end_src
+
 * PDF
 
 #+begin_src emacs-lisp
