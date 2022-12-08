@@ -347,6 +347,14 @@ Only highlight prog & text buffers
   (kaolin-themes-italic-comments t))
 #+end_src
 
+*** Tron legacy
+
+#+begin_src emacs-lisp
+(use-package tron-legacy-theme
+  :config
+  (setq tron-legacy-theme-vivid-cursor t))
+#+end_src
+
 ** Fonts
 
 #+begin_src emacs-lisp
@@ -1920,7 +1928,6 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
   :init
   (dap-auto-configure-mode))
 #+end_src
-
 
 ** Python
 
