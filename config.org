@@ -545,23 +545,6 @@ Undo system that allows tree visualization.
         undo-tree-visualizer-diff t))
 #+end_src
 
-** Gumshoe
-
-Gumshoe is a daemon that quietly keep tabs on your Point movements so you can retrace your steps if you ever need a reminder of where you’ve been.
-#+begin_src emacs-lisp
-(use-package gumshoe
-  :init
-  ;; Enabing global-gumshoe-mode will initiate tracking
-  (global-gumshoe-mode +1)
-  ;; customize peruse slot display if you like
-  (setf gumshoe-slot-schema '(time buffer position line))
-  ;; personally, I use perspectives, so I use the provided extension
-  ;; :after (perspective)
-  ;; (global-gumshoe-persp-mode +1)
-  ;; (setf gumshoe-slot-schema '(perspective time buffer position line))
-)
-#+end_src
-
 * Help
 ** Helpful
 
