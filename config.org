@@ -1692,18 +1692,6 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 #+end_src
 
 * Syntax highlighting
-** Color identifiers
-Color Identifiers is a minor mode for Emacs that highlights each source code identifier uniquely based on its name. It
-#+begin_src emacs-lisp
-(use-package color-identifiers-mode
-  :hook
-  (after-init . global-color-identifiers-mode))
-
-;; Not used for now
-;; (add-hook 'lsp-ccls-after-open-hook 'color-identifiers:regenerate-colors)
-;; (add-hook 'lsp-pyright-after-open-hook 'color-identifiers:regenerate-colors)
-#+end_src
-
 ** Rainbow mode
 Highlight hex digits
 #+begin_src emacs-lisp
@@ -1856,6 +1844,28 @@ otherwise assumed alphabetic."
                                                    (equal "Mozilla" base-style)
                                                    (equal "WebKit" base-style))
                                                (setq-local indent-tabs-mode nil)))))))))
+#+end_src
+
+** Syntax highlighters
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :hook
+  (tree-sitter-after-on . tree-sitter-hl-mode)
+  :config
+  (custom-set-faces ;; Adjust faces to a more resonable default.
+   ;;;;; tree-sitter
+   `(tree-sitter-hl-face:method.call          ((t (:inherit font-lock-function-name-face))))
+   `(tree-sitter-hl-face:function.call        ((t (:inherit font-lock-function-name-face))))
+   `(tree-sitter-hl-face:operator             ((t (:inherit default))))
+   `(tree-sitter-hl-face:type.builtin         ((t (:inherit font-lock-keyword-face))))
+   `(tree-sitter-hl-face:number               ((t (:inherit highlight-numbers-number))))
+   `(tree-sitter-hl-face:variable.special     ((t (:inherit font-lock-keyword-face)))))
+  :init
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs
+  :after tree-sitter)
 #+end_src
 
 ** Syntax checkers
