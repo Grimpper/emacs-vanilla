@@ -95,7 +95,7 @@ Escape with ESC:
 *** Winner
 Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
 #+begin_src emacs-lisp
-(winner-mode)
+(add-hook 'after-init-hook 'winner-mode)
 #+end_src
 
 *** Ibuffer
