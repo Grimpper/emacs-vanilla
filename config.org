@@ -149,7 +149,8 @@ Show files separated on version controlled projects.
                                    help-mode
                                    helpful-mode
                                    ibuffer-mode
-                                   compilation-mode)
+                                   compilation-mode
+                                   comint-mode) ;; For compilation in commint mode (C-u)
         popper-display-function nil
         popper-mode-line (propertize " POP " 'face 'mode-line-emphasis)
         popper-echo-dispatch-keys '("C-0" "C-1" "C-2" "C-3" "C-4"
@@ -1712,7 +1713,17 @@ Prism disperses lisp forms (and other languages) into a spectrum of color by dep
 
 If the colors are not pleasant use =prism-randomize-colors=.
 
-* Projectile
+* Project management
+
+Compile project.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x c") #'(lambda  ()
+                                  (interactive)
+                                  (setq current-prefix-arg '(4)) ;; C-u
+                                  (call-interactively 'compile)))
+#+end_src
+
+** Projectile
 
 Add project management to emacs.
 #+begin_src emacs-lisp
@@ -1961,6 +1972,15 @@ This is needed to provide support for CCLS to LSP-mode.
 This package converts the buffer text and the associated decorations to HTML. It allows org export to colorize src blocks
 #+begin_src emacs-lisp
 (use-package htmlize)
+#+end_src
+
+** Makefile
+
+Emacs helpers to run things from makefiles.
+#+begin_src emacs-lisp
+(use-package makefile-executor
+  :config
+  (add-hook 'makefile-mode-hook 'makefile-executor-mode))
 #+end_src
 
 * TODO [2/7] [28%]
