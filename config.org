@@ -743,10 +743,18 @@ Autocompletion for inline text.
          ("M-p ^" . cape-tex)
          ("M-p &" . cape-sgml)
          ("M-p r" . cape-rfc1345))
-  :init
+  :config
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file))
+  (add-to-list 'completion-at-point-functions #'cape-file)
+
+  :hook
+  (prog-mode . (lambda ()
+                 (dolist (backend '(cape-file cape-symbol cape-dabbrev cape-keyword)) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
+                   (add-to-list 'completion-at-point-functions backend))))
+  (text-mode . (lambda ()
+                 (dolist (backend '(cape-file cape-dabbrev)) ;; Try dabbrev and enable file completion on text derived modes
+                   (add-to-list 'completion-at-point-functions backend)))))
 #+end_src
 
 ** Yasnippet
