@@ -1719,8 +1719,8 @@ Compile project.
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x c") #'(lambda  ()
                                   (interactive)
-                                  (setq current-prefix-arg '(4)) ;; C-u
-                                  (call-interactively 'compile)))
+                                  (let ((current-prefix-arg '(4))) ;; C-u
+                                    (call-interactively 'compile))))
 #+end_src
 
 ** Projectile
