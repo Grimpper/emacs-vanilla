@@ -1150,6 +1150,9 @@ Open org links to PDF in pdf-tools.
 *Settings:*
 #+begin_src emacs-lisp
 (add-hook 'vterm-mode-hook #'hide-mode-line-mode) 
+
+;; Keybinding
+(global-set-key (kbd "C-x t V") #'vterm)
 #+end_src
 
 *** Toggle
@@ -1165,6 +1168,9 @@ Open org links to PDF in pdf-tools.
 *Settings:*
 #+begin_src emacs-lisp
 (add-hook 'shell-mode-hook #'hide-mode-line-mode) 
+
+;; Keybinding
+(global-set-key (kbd "C-x t S") #'shell)
 #+end_src
 
 *** Toggle
@@ -1196,6 +1202,9 @@ Open org links to PDF in pdf-tools.
 
 ;; Remove modeline
 (add-hook 'eshell-mode-hook #'hide-mode-line-mode)
+
+;; Keybind
+(global-set-key (kbd "C-x t E") #'eshell)
 #+end_src
 
 *** Toggle
