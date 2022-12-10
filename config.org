@@ -2028,6 +2028,13 @@ Emacs helpers to run things from makefiles.
   (add-hook 'makefile-mode-hook 'makefile-executor-mode))
 #+end_src
 
+** Nix
+
+#+begin_src emacs-lisp
+(use-package nix-mode
+  :mode "\\.nix\\'")
+#+end_src
+
 * TODO [2/7] [28%]
 + [ ] Winner undoo
 + [ ] Change focus
