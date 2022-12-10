@@ -1804,6 +1804,19 @@ in that buffer, and invoke something much more basic in their place.
   :straight (screenshot :type git :host github :repo "tecosaur/screenshot"))
 #+end_src
 
+** Crux
+
+A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many useful interactive commands to enhance your overall Emacs experience.
+#+begin_src emacs-lisp
+(use-package crux
+  :bind (("C-x O" . crux-open-with)
+         ("C-x U" . crux-view-url)
+         ("C-x E" . crux-eval-and-replace)
+         ("C-x D" . crux-delete-file-and-buffer)
+         ("C-x C" . crux-copy-file-preserve-attributes)
+         ("C-x R" . crux-rename-file-and-buffer)))
+#+end_src
+
 * Programming
 ** Formaters
 *** Clang-format
