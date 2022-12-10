@@ -1242,15 +1242,15 @@ Open org links to PDF in pdf-tools.
 
 (defun run-this-in-eshell (cmd)
   "Runs the command 'cmd' in eshell."
-  (with-current-buffer "*eshell*"
-    (end-of-buffer)
-    (eshell-kill-input)
-    (message (concat "Running in Eshell: " cmd))
-    (insert cmd)
-    (eshell-send-input)
-    (end-of-buffer)
-    (eshell-bol)
-    (yank)))
+  (if (string= (derived-mode-p 'eshell-mode) "eshell-mode")
+      (progn (end-of-buffer)
+             (eshell-kill-input)
+             (message (concat "Running in Eshell: " cmd))
+             (insert cmd)
+             (eshell-send-input)
+             (end-of-buffer)
+             (eshell-bol)
+             (yank))))
 
 (add-hook 'eshell-mode-hook #'(lambda ()
                                 (local-set-key (kbd "C-l") #'(lambda ()
