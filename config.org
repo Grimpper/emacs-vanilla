@@ -745,17 +745,15 @@ Autocompletion for inline text.
          ("M-p ^" . cape-tex)
          ("M-p &" . cape-sgml)
          ("M-p r" . cape-rfc1345))
-  :config
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-
   :hook
   (prog-mode . (lambda ()
-                 (dolist (backend '(cape-file cape-symbol cape-dabbrev cape-keyword)) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
-                   (add-to-list 'completion-at-point-functions backend))))
+                 (if (not (member 'elisp-completion-at-point completion-at-point-functions))
+                     (dolist (backend '(cape-symbol cape-dabbrev cape-keyword cape-file)) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
+                       (add-to-list 'completion-at-point-functions backend))
+                   (dolist (backend '(cape-file cape-keyword cape-dabbrev cape-symbol)) ;; For lisp let the default completion be the first candidate
+                     (add-to-list 'completion-at-point-functions backend t)))))
   (text-mode . (lambda ()
-                 (dolist (backend '(cape-file cape-dabbrev)) ;; Try dabbrev and enable file completion on text derived modes
+                 (dolist (backend '(cape-dabbrev cape-file)) ;; Try dabbrev and enable file completion on text derived modes
                    (add-to-list 'completion-at-point-functions backend)))))
 #+end_src
 
