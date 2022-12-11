@@ -150,6 +150,7 @@ Show files separated on version controlled projects.
                                    help-mode
                                    helpful-mode
                                    ibuffer-mode
+                                   eshell-mode
                                    compilation-mode
                                    comint-mode) ;; For compilation in commint mode (C-u)
         popper-display-function nil
@@ -1506,7 +1507,7 @@ This package defines function dired-subtree-insert which instead inserts the sub
       ("html"
        (extension . ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml")))
       ("xml"
-       (extension . ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata")))
+       (extension . ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata" "toml")))
       ("document"
        (extension . ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx")))
       ("markdown"
