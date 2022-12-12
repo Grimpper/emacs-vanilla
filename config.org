@@ -41,6 +41,11 @@ Config:
 (scroll-bar-mode -1)
 (global-visual-line-mode 1)
 
+(setq window-divider-default-bottom-width 1
+      window-divider-default-right-width 1
+      window-divider-default-places t)
+(window-divider-mode 1)
+
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (setq x-stretch-cursor t
