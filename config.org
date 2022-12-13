@@ -2029,7 +2029,12 @@ Emacs helpers to run things from makefiles.
 
 #+begin_src emacs-lisp
 (use-package nix-mode
-  :mode "\\.nix\\'")
+  :mode "\\.nix\\'"
+  :config
+  ;; Since we are using corfu for completion give enough time to fetch everything before flooding the repl with the live output
+  ;; Yes it seems that the repl is implemented in a way in which if the time for fetching completion excedes the maximum it starts
+  ;; to print all of it into the buffer. Let corfu handle long outputs.
+  (setq nix-repl-completion-output-timeout 10000))
 #+end_src
 
 * TODO [2/7] [28%]
