@@ -1811,9 +1811,8 @@ in that buffer, and invoke something much more basic in their place.
 (use-package good-scroll
   :config
   (setq scroll-step 1)
-  :bind
-  ("<next>" . good-scroll-up-full-screen)
-  ("<prior>" . good-scroll-down-full-screen)
+  (define-key override-global-map (kbd "<next>") #'good-scroll-up-full-screen)
+  (define-key override-global-map (kbd "<prior>") #'good-scroll-down-full-screen)
   :init
   (good-scroll-mode 1))
 #+end_src
