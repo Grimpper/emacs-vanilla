@@ -682,6 +682,10 @@ Autocompletion for inline text.
       (setq-local corfu-auto t)
       (corfu-mode)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer)
+
+  ;; Fix comint mode map taking precedence over corfu
+  (evil-define-key* 'insert corfu-map (kbd "<up>") #'corfu-previous)
+  (evil-define-key* 'insert corfu-map (kbd "<down>") #'corfu-next)
   :init
   (global-corfu-mode)
   (corfu-history-mode))
