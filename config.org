@@ -2042,6 +2042,27 @@ Emacs helpers to run things from makefiles.
   (setq nix-repl-completion-output-timeout 10000))
 #+end_src
 
+** Docker
+
+#+begin_src emacs-lisp
+(use-package dockerfile-mode)
+#+end_src
+
+*** TRAMP
+
+Offers the TRAMP method docker to access running containers:
+#+begin_src emacs-lisp
+(use-package docker-tramp)
+#+end_src
+
+#+begin_quote
+=C-x C-f= /docker:user@container:/path/to/file
+
+_where_:
+  =user=           is the user that you want to use inside the container (optional)
+  =container=      is the id or name of the container
+#+end_quote
+
 * TODO [2/7] [28%]
 + [ ] Winner undoo
 + [ ] Change focus
