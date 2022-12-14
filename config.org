@@ -492,6 +492,13 @@ Only highlight prog & text buffers
   (evilem-default-keybindings "gs"))
 #+end_src
 
+*** Nerd commenter
+
+#+begin_src emacs-lisp
+(use-package evil-nerd-commenter
+  :bind (("C-x C-;" . evilnc-comment-or-uncomment-lines)))
+#+end_src
+
 ** Expand region
 
 #+begin_src emacs-lisp
@@ -1576,7 +1583,6 @@ This repository provides a transient version called dired-transient-rsync. This 
   :bind (:map dired-mode-map
               ("C-c r" . dired-rsync-transient)))
 #+end_src
-
 
 ** Theming
 
