@@ -16,4 +16,5 @@
 /.lsp-session-v1
 /straight/*.el
 /straight/build/
-straight/repos/
+/straight/repos/
+/straight/modified/

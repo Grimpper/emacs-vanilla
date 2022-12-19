@@ -1183,6 +1183,16 @@ Open org links to PDF in pdf-tools.
   :hook (org-mode . org-pdftools-setup-link))
 #+end_src
 
+** Transclusion
+
+#+begin_src emacs-lisp
+(use-package org-transclusion
+  :after org
+  :bind
+  (("C-c t t" . org-transclusion-mode)
+   ("C-c t a" . org-transclusion-add)))
+#+end_src
+
 ** Sticky header
 
 #+begin_src emacs-lisp
@@ -1431,6 +1441,10 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
     (char-to-string ?)
   (char-to-string ?)))
 
+(defun check-pyenv ()
+  (if (boundp 'pyvenv-virtual-env-name)
+      pyvenv-virtual-env-name))
+
 (esh-section esh-dir
              (check-empty-dir)  ;  (get icon folder)
              (abbreviate-file-name (eshell/pwd))
@@ -1442,8 +1456,10 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
              '(:inherit outline-4))
 
 (esh-section esh-python
-             ""  ;  (python icon)
-             (boundp 'pyvenv-virtual-env-name))
+             ""  ;  (python icon)
+             (if (boundp 'pyvenv-virtual-env-name)
+                 pyvenv-virtual-env-name)
+             '(:inherit outline-8))
 
 (esh-section esh-clock
              ""  ;  (clock icon)
@@ -1871,10 +1887,11 @@ in that buffer, and invoke something much more basic in their place.
 
 ** Scrolling
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+(setq scroll-step 1
+      scroll-conservatively 101)
+
 (use-package good-scroll
-  :config
-  (setq scroll-step 1)
   :bind (("<next>" . good-scroll-up-full-screen)
          ("<prior>" . good-scroll-down-full-screen))
   :init
@@ -1899,6 +1916,15 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
          ("C-x D" . crux-delete-file-and-buffer)
          ("C-x C" . crux-copy-file-preserve-attributes)
          ("C-x R" . crux-rename-file-and-buffer)))
+#+end_src
+
+** Inherit shell
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :init
+  (when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize)))
 #+end_src
 
 * Programming
@@ -2060,6 +2086,26 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
 Load the python debugger library.
 #+begin_src emacs-lisp
 (require 'dap-python)
+#+end_src
+
+*** Language servers
+**** Pyright
+
+#+begin_src emacs-lisp
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
+#+end_src
+
+*** Environments
+
+#+begin_src emacs-lisp
+(use-package pyvenv
+  :init
+  (pyvenv-mode)
+  (pyvenv-tracking-mode))
 #+end_src
 
 ** C
