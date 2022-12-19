@@ -12,6 +12,8 @@
 /places
 /package-quickstart.elc
 /eln-cache/
-/straight/
 /*.eld
 /.lsp-session-v1
+/straight/*.el
+/straight/build/
+straight/repos/
