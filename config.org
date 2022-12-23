@@ -1610,32 +1610,6 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 (setq eshell-prompt-function 'esh-prompt-func)
 #+end_src
 
-*** Corfu support
-
-#+begin_src emacs-lisp
-(defun corfu-send-shell (&rest _)
-  "Send completion candidate when inside comint/eshell."
-  (cond
-   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
-    (eshell-send-input))
-   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
-    (comint-send-input))))
-
-(advice-add #'corfu-insert :after #'corfu-send-shell)
-
-(add-hook 'eshell-mode-hook
-          #'(lambda ()
-              (setq-local corfu-auto nil)
-              (corfu-mode)))
-#+end_src
-
-*** Consult support
-
-In order to support quick jumping to prompts in eshell via consult-outline we can set the outline-regexp appropriately in the eshell-mode.
-#+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook (lambda () (setq outline-regexp eshell-prompt-regexp)))
-#+end_src
-
 * Dired
 
 Load the extra dired libraries.
@@ -2204,11 +2178,7 @@ Load the python debugger library.
 **** Pyright
 
 #+begin_src emacs-lisp
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
+(use-package lsp-pyright)
 #+end_src
 
 *** Environments
