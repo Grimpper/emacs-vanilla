@@ -1293,6 +1293,13 @@ Open org links to PDF in pdf-tools.
 
 ;; Keybind
 (global-set-key (kbd "C-x t E") #'eshell)
+
+;; Alias
+(defun eshell/ff (&rest args)
+  (apply #'find-file args))
+
+(defun eshell/fo (&rest args)
+  (apply #'find-file-other-window args))
 #+end_src
 
 *** Toggle
@@ -1331,39 +1338,117 @@ Open org links to PDF in pdf-tools.
                                                                (run-this-in-eshell "clear")))))
 #+end_src
 
-*** Aliases
-
-#+begin_src emacs-lisp
-(defun eshell/ff (&rest args)
-  (apply #'find-file args))
-
-(defun eshell/fo (&rest args)
-  (apply #'find-file-other-window args))
-#+end_src
-
 *** Suggestions
 
 #+begin_src emacs-lisp
 (use-package esh-autosuggest
-  :hook (eshell-mode . esh-autosuggest-mode)) 
+  :hook (eshell-mode . esh-autosuggest-mode))
+#+end_src
+
+*** Up
+
+Quickly go to a specific parent directory in eshell. Just type a substring of the parent dir as an argument to eshell-up function.
+#+begin_src emacs-lisp
+(use-package eshell-up
+  :config
+  (setq eshell-up-ignore-case t)
+  (defun eshell/up (&rest args)
+    (apply #'eshell-up args)))
+#+end_src
+
+*** Help
+
+This library adds the following help functions and support for Eshell:
+
++ =run-help= function inspired by Zsh
++ =eldoc= support
+
+#+begin_src emacs-lisp
+(use-package esh-help
+  :init
+  (setup-esh-help-eldoc))
+#+end_src
+
+*** TODO Aweshell
+
+Awesome shell extension base on eshell with wonderful features! 
+#+begin_src emacs-lisp :tangle no
+(use-package aweshell
+  :straight (aweshell :type git :host github :repo "manateelazycat/aweshell"
+		      :files ("aweshell.el" "eshell-did-you-mean.el"))
+  :after esh-mode ;; Specifically esh-mode, not eshell
+  :config
+  (eshell-did-you-mean-setup)
+  ;; HACK There is a known issue with `eshell-did-you-mean' where it does not
+  ;;      work on first invocation, so we invoke it once manually by setting the
+  ;;      last command and then calling the output filter.
+  (setq eshell-last-command-name "catt")
+  (eshell-did-you-mean-output-filter "catt: command not found"))
+#+end_src
+
+*** Bash completion
+
+#+begin_src emacs-lisp
+(use-package bash-completion)
+#+end_src
+
+*** Fish completion
+
+#+begin_src emacs-lisp
+(use-package fish-completion
+  :hook (eshell-mode . fish-completion-mode)
+  :init (setq fish-completion-fallback-on-bash-p t)
+  :config
+  ;; HACK Even with `fish-completion-fallback-on-bash-p' non-nil,
+  ;;      `fish-completion--list-completions-with-desc' will throw an error if
+  ;;      fish isn't installed (and so, will fail to fall back to bash), so we
+  ;;      advise it to fail silently.
+  (advice-add 'fish-completion--list-completions-with-desc :before-until #'(lambda (&rest _)
+									     (unless (executable-find "fish") ""))))
+#+end_src
+
+*** Syntax highlighting
+
+Syntax highlighting for Eshell.
+#+begin_src emacs-lisp
+(use-package eshell-syntax-highlighting
+  :after esh-mode ;; Specifically esh-mode, not eshell
+  :init
+  ;; Enable in all Eshell buffers.
+  (eshell-syntax-highlighting-global-mode 1))
+#+end_src
+
+*** Corfu support
+
+#+begin_src emacs-lisp
+(defun corfu-send-shell (&rest _)
+  "Send completion candidate when inside comint/eshell."
+  (cond
+   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
+    (eshell-send-input))
+   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
+    (comint-send-input))))
+
+(advice-add #'corfu-insert :after #'corfu-send-shell)
+
+(add-hook 'eshell-mode-hook
+          #'(lambda ()
+              (setq-local corfu-auto nil)
+              (corfu-mode)))
+#+end_src
+
+*** Consult support
+
+In order to support quick jumping to prompts in eshell via consult-outline we can set the outline-regexp appropriately in the eshell-mode.
+#+begin_src emacs-lisp
+(add-hook 'eshell-mode-hook (lambda () (setq outline-regexp eshell-prompt-regexp)))
 #+end_src
 
 *** Fancy prompt
 
 Needed packages:
-#+begin_src emacs-lisp :tangle no
-(use-package eshell-prompt-extras
-  :config
-  ;; Display python virtual environment
-  (with-eval-after-load "esh-opt"
-  (unless (and (fboundp 'package-installed-p)
-               (package-installed-p 'virtualenvwrapper)) ;; This requires virtualenvwrapper to work
-    (package-install 'virtualenvwrapper))
-  (venv-initialize-eshell)
-  ;; Add lambda theme
-  (autoload 'epe-theme-lambda "eshell-prompt-extras")
-  (setq eshell-highlight-prompt nil
-        eshell-prompt-function #'epe-theme-lambda)))
+#+begin_src emacs-lisp
+(use-package eshell-prompt-extras)
 #+end_src
 
 Custom banner:
