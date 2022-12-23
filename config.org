@@ -41,6 +41,7 @@ Config:
 (scroll-bar-mode -1)
 (global-visual-line-mode 1)
 
+;; Window divider settings
 (setq window-divider-default-bottom-width 1
       window-divider-default-right-width 1
       window-divider-default-places t)
@@ -188,6 +189,29 @@ Only highlight prog & text buffers
   (text-mode . hl-line-mode))
 #+end_src
 
+*** Useless whitespaces
+
+#+begin_src emacs-lisp
+(add-hook 'prog-mode-hook #'(lambda ()
+                              (setq-local show-trailing-whitespace t)))
+#+end_src
+
+*** Comment keywords
+
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :hook (prog-mode . hl-todo-mode)
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"       warning bold)
+          ("FIXME"      error bold)
+          ("HACK"       font-lock-constant-face bold)
+          ("REVIEW"     font-lock-keyword-face bold)
+          ("NOTE"       success bold)
+          ("DEPRECATED" font-lock-doc-face bold))))
+#+end_src
+
 *** Numbers
 
 #+begin_src emacs-lisp
@@ -316,7 +340,7 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-  (load-theme 'ef-night))
+  (load-theme 'ef-light))
 (with-eval-after-load 'kaolin-themes
   (kaolin-treemacs-theme))
 #+end_src
@@ -367,7 +391,7 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (setq default-frame-alist
-   '((font . "JetBrainsMono Nerd Font-14")))
+   '((font . "JetBrainsMono Nerd Font-12")))
 #+end_src
 
 ** Icons
@@ -385,7 +409,7 @@ Only highlight prog & text buffers
 ** Tabs
 
 #+begin_src emacs-lisp
-(setq-default indent-tabs-mode nil)
+(use-package smart-tabs-mode)
 #+end_src
 
 ** Mouse buttons
@@ -503,9 +527,12 @@ Only highlight prog & text buffers
 
 #+begin_src emacs-lisp
 (use-package expand-region
-  :after evil
-  :bind
-  ("C-+" . er/expand-region))
+  :after evil)
+
+(defhydra hydra-expand-region (global-map "C-+")
+  "expand region"
+  ("+" er/expand-region)
+  ("-" er/contract-region))
 #+end_src
 
 ** Avy
