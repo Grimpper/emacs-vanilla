@@ -503,7 +503,7 @@ Only highlight prog & text buffers
   :after evil
   :config
   (evil-multiedit-default-keybinds)
-  (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines)) 
+  (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines))
 #+end_src
 
 *** Easymotion
@@ -1043,7 +1043,7 @@ A fantastic package that uses regex to find possible matches of the target at po
 #+begin_src emacs-lisp
 (use-package dumb-jump
   :config
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)) 
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 #+end_src
 
 * Version control
@@ -1237,7 +1237,7 @@ Open org links to PDF in pdf-tools.
 
 *Settings:*
 #+begin_src emacs-lisp
-(add-hook 'vterm-mode-hook #'hide-mode-line-mode) 
+(add-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
 ;; Keybinding
 (global-set-key (kbd "C-x t V") #'vterm)
@@ -1255,7 +1255,7 @@ Open org links to PDF in pdf-tools.
 
 *Settings:*
 #+begin_src emacs-lisp
-(add-hook 'shell-mode-hook #'hide-mode-line-mode) 
+(add-hook 'shell-mode-hook #'hide-mode-line-mode)
 
 ;; Keybinding
 (global-set-key (kbd "C-x t S") #'shell)
@@ -1371,11 +1371,11 @@ This library adds the following help functions and support for Eshell:
 
 *** TODO Aweshell
 
-Awesome shell extension base on eshell with wonderful features! 
+Awesome shell extension base on eshell with wonderful features!
 #+begin_src emacs-lisp :tangle no
 (use-package aweshell
   :straight (aweshell :type git :host github :repo "manateelazycat/aweshell"
-		      :files ("aweshell.el" "eshell-did-you-mean.el"))
+                      :files ("aweshell.el" "eshell-did-you-mean.el"))
   :after esh-mode ;; Specifically esh-mode, not eshell
   :config
   (eshell-did-you-mean-setup)
@@ -1404,7 +1404,7 @@ Awesome shell extension base on eshell with wonderful features!
   ;;      fish isn't installed (and so, will fail to fall back to bash), so we
   ;;      advise it to fail silently.
   (advice-add 'fish-completion--list-completions-with-desc :before-until #'(lambda (&rest _)
-									     (unless (executable-find "fish") ""))))
+                                                                             (unless (executable-find "fish") ""))))
 #+end_src
 
 *** Syntax highlighting
@@ -1459,7 +1459,7 @@ Custom banner:
                  (propertize (format " %s " (string-trim (buffer-name)))
                              'face 'mode-line-highlight)
                  (propertize (current-time-string)
-                             'face 'font-lock-keyword-face))))  
+                             'face 'font-lock-keyword-face))))
 #+end_src
 
 **** Doom prompt
@@ -1868,14 +1868,14 @@ By default ediff spawns a new frame to display files to be compared or merged. R
   (setq my-ediff-bwin-config (current-window-configuration))
   (when (characterp my-ediff-bwin-reg)
     (set-register my-ediff-bwin-reg
-    		  (list my-ediff-bwin-config (point-marker)))))
+                  (list my-ediff-bwin-config (point-marker)))))
 
 (defun my-ediff-ash ()
   "Function to be called after buffers and window setup for ediff."
   (setq my-ediff-awin-config (current-window-configuration))
   (when (characterp my-ediff-awin-reg)
     (set-register my-ediff-awin-reg
-    		  (list my-ediff-awin-config (point-marker)))))
+                  (list my-ediff-awin-config (point-marker)))))
 
 (defun my-ediff-qh ()
   "Function to be called when ediff quits."
