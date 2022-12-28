@@ -340,7 +340,7 @@ Only highlight prog & text buffers
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-  (load-theme 'ef-light))
+    (load-theme 'ef-night))
 (with-eval-after-load 'kaolin-themes
   (kaolin-treemacs-theme))
 #+end_src
@@ -646,7 +646,9 @@ Key legend popup.
   ("M-DEL" . vertico-directory-delete-word))
   :config
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (define-key override-global-map (kbd "C-'") #'vertico-repeat)
+  (if (string= (getenv "XDG_SESSION_DESKTOP") "budgie-desktop") ;; Temp fix until I find why on budgie the key seccuence when pressing <'> with the current corne keyboard config is different than on others desktop environments.
+      (define-key override-global-map (kbd "C-<dead-acute>") #'vertico-repeat)
+    (define-key override-global-map (kbd "C-'") #'vertico-repeat))
   :init
   (vertico-mode)
   (vertico-mouse-mode))
@@ -2013,6 +2015,13 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
   (exec-path-from-shell-initialize)))
 #+end_src
 
+** Log keys
+
+Mode to log every key press in emacs with the corresponding action taken.
+#+begin_src emacs-lisp
+(use-package command-log-mode)
+#+end_src
+
 * Programming
 ** Formaters
 *** Clang-format
@@ -2205,6 +2214,12 @@ This is needed to provide support for CCLS to LSP-mode.
 This package converts the buffer text and the associated decorations to HTML. It allows org export to colorize src blocks
 #+begin_src emacs-lisp
 (use-package htmlize)
+#+end_src
+
+** YAML
+
+#+begin_src emacs-lisp
+(use-package yaml-mode)
 #+end_src
 
 ** Makefile
