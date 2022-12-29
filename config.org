@@ -317,6 +317,7 @@ Only highlight prog & text buffers
 
 ** Eros
 
+Evaluation Result OverlayS for Emacs Lisp.
 #+begin_src emacs-lisp
 (use-package eros
   :init
@@ -1934,6 +1935,14 @@ Add project management to emacs.
   :bind (("C-c p" . projectile-command-map))
   :init
   (projectile-mode))
+#+end_src
+
+** Direnv
+
+#+begin_src emacs-lisp
+(use-package direnv
+  :init
+  (direnv-mode))
 #+end_src
 
 * Extras
