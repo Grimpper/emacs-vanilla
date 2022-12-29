@@ -2231,6 +2231,12 @@ This package converts the buffer text and the associated decorations to HTML. It
 (use-package htmlize)
 #+end_src
 
+** JSON
+
+#+begin_src emacs-lisp
+(use-package json-mode)
+#+end_src
+
 ** YAML
 
 #+begin_src emacs-lisp
