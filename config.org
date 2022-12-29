@@ -100,6 +100,7 @@ Escape with ESC:
 
 
 *** Winner
+
 Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
 #+begin_src emacs-lisp
 (add-hook 'after-init-hook 'winner-mode)
@@ -308,11 +309,18 @@ Only highlight prog & text buffers
 (use-package treemacs-projectile
   :after (treemacs projectile))
 
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once))
+(use-package treemacs-all-the-icons
+  :config
+  (treemacs-load-theme "all-the-icons"))
 
 (use-package treemacs-magit
   :after (treemacs magit))
+
+;; Integration between lsp-mode and treemacs and implementation of treeview controls using treemacs as a tree renderer.
+(use-package lsp-treemacs
+  :after lsp-mode
+  :init
+  (lsp-treemacs-sync-mode))
 #+end_src
 
 ** Eros
@@ -342,8 +350,6 @@ Evaluation Result OverlayS for Emacs Lisp.
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
     (load-theme 'ef-night))
-(with-eval-after-load 'kaolin-themes
-  (kaolin-treemacs-theme))
 #+end_src
 
 *** Ef
@@ -363,11 +369,6 @@ Evaluation Result OverlayS for Emacs Lisp.
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 #+end_src
@@ -1771,12 +1772,10 @@ This repository provides a transient version called dired-transient-rsync. This 
 
 *** Icons
 
-Add icons.
+Add icons (match the ones used in treemacs).
 #+begin_src emacs-lisp
-(use-package all-the-icons-dired
-  :hook
-  (dired-mode . all-the-icons-dired-mode)
-  :init (setq all-the-icons-dired-monochrome nil))
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once))
 #+end_src
 
 *** Extra font locks
@@ -2173,16 +2172,6 @@ Fancy sideline, popup documentation, VScode-like peek UI, etc.
   :bind (:map lsp-ui-mode-map
               ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
               ([remap xref-find-references] . lsp-ui-peek-find-references)))
-#+end_src
-
-**** Treemacs
-
-Integration between lsp-mode and treemacs and implementation of treeview controls using treemacs as a tree renderer.
-#+begin_src emacs-lisp
-(use-package lsp-treemacs
-  :after lsp-mode
-  :init
-  (lsp-treemacs-sync-mode))
 #+end_src
 
 **** Consult
