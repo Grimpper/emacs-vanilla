@@ -829,6 +829,7 @@ Autocompletion for inline text.
 ** Cape
 
 #+begin_src emacs-lisp
+(require 'dash)
 (use-package cape
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
@@ -850,14 +851,14 @@ Autocompletion for inline text.
          ("M-p r" . cape-rfc1345))
   :hook
   (prog-mode . (lambda ()
-                 (if (not (member 'elisp-completion-at-point completion-at-point-functions))
-                     (dolist (backend '(cape-symbol cape-dabbrev cape-keyword cape-file)) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
-                       (add-to-list 'completion-at-point-functions backend))
-                   (dolist (backend '(cape-file cape-keyword cape-dabbrev cape-symbol)) ;; For lisp let the default completion be the first candidate
-                     (add-to-list 'completion-at-point-functions backend t)))))
+                 (let ((backendList '(cape-file cape-keyword cape-dabbrev cape-symbol)))
+                     (if (member 'elisp-completion-at-point completion-at-point-functions)
+                     (setq-local completion-at-point-functions (-union '(cape-file) (-union completion-at-point-functions backendList))) ;; Add cape-file as the first candidate, later the normal emacs-lisp completion and finally the rest of caps
+                   (setq-local completion-at-point-functions (-union backendList completion-at-point-functions)))))) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
+  (lsp-after-initialize . (lambda ()
+                (setq-local completion-at-point-functions (-union '(cape-file) completion-at-point-functions)))) ;; Add file completion as first candidate since it won't usually conflict with any other completion backends.
   (text-mode . (lambda ()
-                 (dolist (backend '(cape-dabbrev cape-file)) ;; Try dabbrev and enable file completion on text derived modes
-                   (add-to-list 'completion-at-point-functions backend)))))
+                 (setq-local completion-at-point-functions (-union '(cape-file cape-dabbrev) completion-at-point-functions)))))
 #+end_src
 
 ** Yasnippet
