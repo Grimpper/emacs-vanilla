@@ -1279,6 +1279,11 @@ Open org links to PDF in pdf-tools.
 (add-hook 'eshell-mode-hook #'(lambda () ;; Eshell overrides the map after initialization therefore we have to set it after.
                                 (local-set-key (kbd "<home>") #'eshell-bol)))
 
+;; Remove hscroll-margin in shells, otherwise you get jumpiness when the
+;; cursor comes close to the left/right edges of the window.
+(add-hook 'eshell-mode-hook #'(lambda ()
+                              (setq-local hscroll-margin 0)))
+
 (setq eshell-scroll-to-bottom-on-input 'all
       eshell-scroll-to-bottom-on-output 'all
       eshell-kill-processes-on-exit t
