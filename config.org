@@ -1950,6 +1950,10 @@ Compile project.
                                   (interactive)
                                   (let ((current-prefix-arg '(4))) ;; C-u
                                     (call-interactively 'compile))))
+
+(put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
+
+(add-to-list 'compilation-error-regexp-alist '("^devicetree error: \\(.*?\\):\\([0-9]+\\)" 1 2))
 #+end_src
 
 ** Projectile
