@@ -2265,6 +2265,13 @@ Emacs helpers to run things from makefiles.
   (add-hook 'makefile-mode-hook 'makefile-executor-mode))
 #+end_src
 
+** DTS
+
+This provides basic editing support for DTS files.
+#+begin_src emacs-lisp
+(use-package dts-mode)
+#+end_src
+
 ** Nix
 
 #+begin_src emacs-lisp
