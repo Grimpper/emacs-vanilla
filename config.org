@@ -567,6 +567,12 @@ Avy is a GNU Emacs package for jumping to visible text using a char-based decisi
 #+end_src
 
 * History
+
+Enable recent files.
+#+begin_src emacs-lisp
+(recentf-mode 1)
+#+end_src
+
 ** Backups
 Backup files preserve file contents prior to the current session.
 Put backed-up files on a dedicated directory (avoids cluttering the working directory tree).
