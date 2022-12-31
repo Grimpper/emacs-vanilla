@@ -2271,7 +2271,9 @@ Emacs helpers to run things from makefiles.
 
 This provides basic editing support for DTS files.
 #+begin_src emacs-lisp
-(use-package dts-mode)
+(use-package dts-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.keymap\\'" . dts-mode)))
 #+end_src
 
 ** Nix
