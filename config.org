@@ -2175,6 +2175,67 @@ Full fledged LSP client.
   (lsp-dired-mode))
 #+end_src
 
+**** Change priority
+
+#+begin_src emacs-lisp
+(defmacro add-transient-hook! (hook-or-function &rest forms)
+  "Attaches a self-removing function to HOOK-OR-FUNCTION.
+
+FORMS are evaluated once, when that function/hook is first invoked, then never
+again.
+
+HOOK-OR-FUNCTION can be a quoted hook or a sharp-quoted function (which will be
+advised)."
+  (declare (indent 1))
+  (let ((append? (if (eq (car forms) :after) (pop forms)))
+        (fn (gensym "doom-transient-hook")))
+    `(let ((sym ,hook-or-function))
+       (defun ,fn (&rest _)
+         ,(format "Transient hook for %S" (doom-unquote hook-or-function))
+         ,@forms
+         (let ((sym ,hook-or-function))
+           (cond ((functionp sym) (advice-remove sym #',fn))
+                 ((symbolp sym)   (remove-hook sym #',fn))))
+         (unintern ',fn nil))
+       (cond ((functionp sym)
+              (advice-add ,hook-or-function ,(if append? :after :before) #',fn))
+             ((symbolp sym)
+              (put ',fn 'permanent-local-hook t)
+              (add-hook sym #',fn ,append?))))))
+
+(defun +lsp/switch-client (client)
+  "Switch to another LSP server."
+  (interactive
+   (progn
+     (require 'lsp-mode)
+     (list (completing-read
+            "Select server: "
+            (or (mapcar #'lsp--client-server-id (lsp--filter-clients (-andfn #'lsp--supports-buffer?
+                                                                             #'lsp--server-binary-present?)))
+                (user-error "No available LSP clients for %S" major-mode))))))
+  (require 'lsp-mode)
+  (let* ((client (if (symbolp client) client (intern client)))
+         (match (car (lsp--filter-clients (lambda (c) (eq (lsp--client-server-id c) client)))))
+         (workspaces (lsp-workspaces)))
+    (unless match
+      (user-error "Couldn't find an LSP client named %S" client))
+    (let ((old-priority (lsp--client-priority match)))
+      (setf (lsp--client-priority match) 9999)
+      (unwind-protect
+          (if workspaces
+              (lsp-workspace-restart
+               (if (cdr workspaces)
+                   (lsp--completing-read "Select server: "
+                                         workspaces
+                                         'lsp--workspace-print
+                                         nil t)
+                 (car workspaces)))
+            (lsp-mode +1))
+       (add-transient-hook! 'lsp-after-initialize-hook
+          (setf (lsp--client-priority match) old-priority))))))
+#+end_src
+
+
 **** UI
 
 Fancy sideline, popup documentation, VScode-like peek UI, etc.
