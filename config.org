@@ -1318,9 +1318,9 @@ Open org links to PDF in pdf-tools.
       eshell-glob-case-insensitive t
       eshell-error-if-no-glob t)
 
-;; Disable history mode. Using consult directly is more powerful.
-(add-hook 'eshell-mode-hook #'(lambda ()
-                                (eshell-hist-mode -1)))
+;; Disable history mode search keybinding so it won't override consult bindings. Using consult directly is more powerful.
+(add-hook 'eshell-mode-hook (lambda ()
+                              (define-key eshell-hist-mode-map (kbd "M-s") nil)))
 
 ;; Remove modeline
 (add-hook 'eshell-mode-hook #'hide-mode-line-mode)
