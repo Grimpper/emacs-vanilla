@@ -39,7 +39,9 @@ Config:
 (show-paren-mode 1)
 (blink-cursor-mode 0)
 (scroll-bar-mode -1)
-(global-visual-line-mode 1)
+(global-visual-line-mode 1) ;; Line truncation (to disable toggle this and toggle-truncate-lines)
+(line-number-mode 1) ;; Display line number on mode-line
+(column-number-mode 1) ;; Display column number on mode-line
 
 ;; Window divider settings
 (setq window-divider-default-bottom-width 1
