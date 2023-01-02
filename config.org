@@ -351,7 +351,7 @@ Evaluation Result OverlayS for Emacs Lisp.
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-    (load-theme 'ef-night))
+    (load-theme 'ef-light))
 #+end_src
 
 *** Ef
@@ -1565,9 +1565,9 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
   "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
   `(setq ,NAME
          (lambda () (when ,FORM
-                 (-> ,ICON
-                    (concat esh-section-delim ,FORM)
-                    (with-face ,@PROPS))))))
+                      (-> ,ICON
+                          (concat esh-section-delim ,FORM)
+                          (with-face ,@PROPS))))))
 
 (defun esh-acc (acc x)
   "Accumulator for evaluating and concatenating esh-sections."
@@ -1586,8 +1586,8 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 
 (defun check-empty-dir ()
   (if (directory-empty-p (eshell/pwd))
-    (char-to-string ?)
-  (char-to-string ?)))
+      (char-to-string ?)
+    (char-to-string ?)))
 
 (defun check-pyenv ()
   (if (boundp 'pyvenv-virtual-env-name)
