@@ -1954,6 +1954,14 @@ Compile project.
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
 (add-to-list 'compilation-error-regexp-alist '("^devicetree error: \\(.*?\\):\\([0-9]+\\)" 1 2))
+
+;; Built-in from emacs 28.1
+;; This file provides a function that takes a string or a region
+;; containing Select Graphic Rendition (SGR) control sequences (formerly
+;; known as ANSI escape sequences) and tries to translate these into
+;; faces.
+(require 'ansi-color)
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 #+end_src
 
 ** Projectile
