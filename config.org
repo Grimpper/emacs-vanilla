@@ -1603,10 +1603,26 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
              (magit-get-current-branch)
              '(:inherit outline-4))
 
+(defun get-python-env ()
+  (if (bound-and-true-p pyvenv-virtual-env-name)
+      pyvenv-virtual-env-name
+    (let* ((env-full-path (getenv "VIRTUAL_ENV"))
+           (env-name (if (bound-and-true-p env-full-path)
+                         (file-name-nondirectory env-full-path))))
+      (if (bound-and-true-p env-name)
+          (if (member env-name '("venv" ".venv" "env" ".env"))
+              (file-name-nondirectory
+               (directory-file-name
+                (file-name-directory
+                 (directory-file-name env-full-path))))
+            env-name)))))
+
 (esh-section esh-python
+             ;; This will only update after the directory change therefore on the first entrance
+             ;; the python enviroment will not be loaded and won't appear in the prompt until
+             ;; the next line.
              ""  ;  (python icon)
-             (if (boundp 'pyvenv-virtual-env-name)
-                 pyvenv-virtual-env-name)
+             (get-python-env)
              '(:inherit outline-8))
 
 (esh-section esh-clock
