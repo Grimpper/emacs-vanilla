@@ -2198,6 +2198,13 @@ Full fledged LSP client.
 **** Change priority
 
 #+begin_src emacs-lisp
+(defun doom-unquote (exp)
+  "Return EXP unquoted."
+  (declare (pure t) (side-effect-free t))
+  (while (memq (car-safe exp) '(quote function))
+    (setq exp (cadr exp)))
+  exp)
+
 (defmacro add-transient-hook! (hook-or-function &rest forms)
   "Attaches a self-removing function to HOOK-OR-FUNCTION.
 
