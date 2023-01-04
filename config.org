@@ -250,7 +250,6 @@ Only highlight prog & text buffers
   (emacs-lisp-mode . highlight-defined-mode))
 #+end_src
 
-
 *** VC fringe diff
 
 #+begin_src emacs-lisp
@@ -272,6 +271,46 @@ Only highlight prog & text buffers
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
   (diff-hl-show-hunk-mouse-mode))
+#+end_src
+
+*** Rainbow mode
+
+Highlight hex digits
+#+begin_src emacs-lisp
+(use-package rainbow-mode)
+
+;; Rainbow mode colors cannot be displayed properly over hl-line-mode. Disable when toggling rainbow-mode.
+(add-hook 'rainbow-mode-hook (lambda ()
+                               (if (bound-and-true-p rainbow-mode)
+                                   (hl-line-mode -1)
+                                 (hl-line-mode 1))))
+#+end_src
+
+*** Ansi color
+
+*Built-in from emacs 28.1*
+This file provides a function that takes a string or a region containing Select Graphic Rendition (SGR) control sequences (formerly known as ANSI escape sequences) and tries to translate these into faces.
+#+begin_src emacs-lisp
+(require 'ansi-color)
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(add-hook 'eshell-preoutput-filter-functions 'ansi-color-filter-apply)
+#+end_src
+
+*** TODO Xterm color
+
+xterm-color.el is an ANSI control sequence to text-property translator.
+
+Translation takes place through state machine emulation which provides a far more accurate, comprehensive result than ansi-color.el that is built-into Emacs, without compromising on performance.
+#+begin_src emacs-lisp :tangle no
+(use-package xterm-color
+  :after eshell
+  :hook
+  (eshell-before-prompt . (lambda ()
+                              (setq xterm-color-preserve-properties t)))
+  :config
+  (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  (setenv "TERM" "xterm-256color"))
 #+end_src
 
 ** Minimap
@@ -1938,26 +1977,6 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 #+end_src
 
 * Syntax highlighting
-** Rainbow mode
-Highlight hex digits
-#+begin_src emacs-lisp
-(use-package rainbow-mode)
-
-;; Rainbow mode colors cannot be displayed properly over hl-line-mode. Disable when toggling rainbow-mode.
-(add-hook 'rainbow-mode-hook (lambda ()
-                               (if (bound-and-true-p rainbow-mode)
-                                   (hl-line-mode -1)
-                                 (hl-line-mode 1))))
-#+end_src
-
-** Prism
-Prism disperses lisp forms (and other languages) into a spectrum of color by depth. It’s similar to rainbow-blocks, but it respects existing non-color face properties, and allows flexible configuration of faces and colors. It also optionally colorizes strings and/or comments by code depth in a similar, customizable way.
-#+begin_src emacs-lisp
-(use-package prism)
-#+end_src
-
-If the colors are not pleasant use =prism-randomize-colors=.
-
 * Project management
 
 Compile project.
@@ -1970,14 +1989,6 @@ Compile project.
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
 (add-to-list 'compilation-error-regexp-alist '("^devicetree error: \\(.*?\\):\\([0-9]+\\)" 1 2))
-
-;; Built-in from emacs 28.1
-;; This file provides a function that takes a string or a region
-;; containing Select Graphic Rendition (SGR) control sequences (formerly
-;; known as ANSI escape sequences) and tries to translate these into
-;; faces.
-(require 'ansi-color)
-(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 #+end_src
 
 ** Projectile
@@ -2152,7 +2163,9 @@ otherwise assumed alphabetic."
 #+end_src
 
 ** Syntax highlighters
+*** Tree-sitter
 
+Tree-sitter is a parser generator tool and an incremental parsing library. It can build a concrete syntax tree for a source file and efficiently update the syntax tree as the source file is edited.
 #+begin_src emacs-lisp
 (use-package tree-sitter
   :hook
@@ -2172,6 +2185,15 @@ otherwise assumed alphabetic."
 (use-package tree-sitter-langs
   :after tree-sitter)
 #+end_src
+
+*** Prism
+
+Prism disperses lisp forms (and other languages) into a spectrum of color by depth. It’s similar to rainbow-blocks, but it respects existing non-color face properties, and allows flexible configuration of faces and colors. It also optionally colorizes strings and/or comments by code depth in a similar, customizable way.
+#+begin_src emacs-lisp
+(use-package prism)
+#+end_src
+
+If the colors are not pleasant use =prism-randomize-colors=.
 
 ** Syntax checkers
 *** Flycheck
