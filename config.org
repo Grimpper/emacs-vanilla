@@ -296,29 +296,31 @@ This file provides a function that takes a string or a region containing Select 
 ;; (add-hook 'eshell-preoutput-filter-functions 'ansi-color-filter-apply) ;; Not used with xterm-color.
 #+end_src
 
-*** TODO Xterm color
-
-+ Breaks doom eshell banner.
+*** Xterm color
 
 xterm-color.el is an ANSI control sequence to text-property translator.
 
 Translation takes place through state machine emulation which provides a far more accurate, comprehensive result than ansi-color.el that is built-into Emacs, without compromising on performance.
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package xterm-color
   :after eshell
   :hook
-  (eshell-before-prompt . (lambda ()
-                              (setq xterm-color-preserve-properties t)))
+  ;; Set the color preservation before the banner is loaded so it keeps the necessary propperties to display correctly.
+  ;; The xterm-color author suggests to set the variable after the ~eshell-before-prompt-hook~ but that happens after the banner is printed and therfore all it's propperties get stripped out. Maybe open an issue on xterm-color repo.
+  (eshell-banner-load . (lambda ()
+                          (setq xterm-color-preserve-properties t)))
   :config
   (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
   (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
   (setenv "TERM" "xterm-256color"))
 #+end_src
 
-* Fix ubuntu progress bar
+* TODO Fix ubuntu progress bar
+
++ This won't work with Xterm color since it removes ~eshell-handle-ansi-color~ which is the function that ends up calling ~ansi-color-apply-on-region~.
 
 Code from [[https://github.com/abo-abo/oremacs/blob/afa4d0e3b1a60467ec163220e9823d1f014ab6a4/modes/ora-shell.el][ora-shell.el]].
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (defun ora-shell-hook ())
 
 (advice-add 'ansi-color-apply-on-region :before 'ora-ansi-color-apply-on-region)
