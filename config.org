@@ -487,6 +487,14 @@ Evaluation Result OverlayS for Emacs Lisp.
         (all-the-icons-install-fonts))))
 #+end_src
 
+** Auto dark
+
+Auto-Dark-Emacs is an auto changer between 2 themes, dark/light.
+#+begin_src emacs-lisp
+(use-package auto-dark
+  :init (auto-dark-mode t))
+#+end_src
+
 * Editing functionality
 ** Tabs
 
