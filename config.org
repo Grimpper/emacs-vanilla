@@ -490,9 +490,14 @@ Evaluation Result OverlayS for Emacs Lisp.
 ** Auto dark
 
 Auto-Dark-Emacs is an auto changer between 2 themes, dark/light.
+*This only works for GNOME for now.*
 #+begin_src emacs-lisp
 (use-package auto-dark
-  :init (auto-dark-mode t))
+  :init
+  (setq auto-dark-light-theme 'ef-light
+        auto-dark-dark-theme 'ef-night)
+  (if (string= (getenv "XDG_CURRENT_DESKTOP") "GNOME") ;; Try to enable only for GNOME
+      (auto-dark-mode 1)))
 #+end_src
 
 * Editing functionality
