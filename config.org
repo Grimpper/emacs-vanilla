@@ -100,7 +100,6 @@ Escape with ESC:
     (define-key (eval map) (kbd "C-w") +window-map)))
 #+end_src
 
-
 *** Winner
 
 Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
@@ -243,10 +242,13 @@ Only highlight prog & text buffers
 
 *** Defined
 
+highlight-defined is an Emacs minor mode that highlights defined Emacs Lisp symbols in source code.
+
 #+begin_src emacs-lisp
 (use-package highlight-defined
   :hook
-  ;; (eshell-mode . rainbow-delimiters-mode) ;; Breaks eshell prompt coloring
+  (help-mode . highlight-defined-mode)
+  (helpful-mode . highlight-defined-mode)
   (emacs-lisp-mode . highlight-defined-mode))
 #+end_src
 
@@ -315,7 +317,7 @@ Translation takes place through state machine emulation which provides a far mor
   (setenv "TERM" "xterm-256color"))
 #+end_src
 
-* TODO Fix ubuntu progress bar
+**** TODO Fix ubuntu progress bar
 
 + This won't work with Xterm color since it removes ~eshell-handle-ansi-color~ which is the function that ends up calling ~ansi-color-apply-on-region~.
 
@@ -1180,9 +1182,9 @@ Magit is a complete text-based user interface to Git.
 #+end_src
 
 * Automatic insertions
-** Smartparenthens
+** Smartparentheses
 
-Improved parenthesis.
+Minor mode for Emacs that deals with parens pairs and tries to be smart about it.
 #+begin_src emacs-lisp
 (use-package smartparens
   :config
@@ -2028,7 +2030,6 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 (add-hook 'ediff-quit-hook 'my-ediff-qh)
 #+end_src
 
-* Syntax highlighting
 * Project management
 
 Compile project.
@@ -2154,6 +2155,13 @@ Mode to log every key press in emacs with the corresponding action taken.
 #+end_src
 
 * Programming
+** Suggestions
+
+suggest.el is an Emacs package for discovering elisp functions based on examples. You supply an example input and output, and it makes suggestions.
+#+begin_src emacs-lisp
+(use-package suggest)
+#+end_src
+
 ** Formaters
 *** Clang-format
 
