@@ -596,6 +596,15 @@ Needs to have =indent-tabs-mode= enabled.
     (evil-collection-init))) ;; Enable for magit
 #+end_src
 
+*Use emacs state by default (change to evil with <C-z>)*
+#+begin_src emacs-lisp :tangle no
+(setq evil-default-state 'emacs
+      evil-emacs-state-modes nil
+      evil-insert-state-modes nil
+      evil-motion-state-modes nil
+      evil-normal-state-modes nil)
+#+end_src
+
 *** Surround
 
 #+begin_src emacs-lisp
