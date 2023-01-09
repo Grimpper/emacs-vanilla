@@ -2299,6 +2299,14 @@ Use the more modern syntax checker (Flycheck) over the built-in Flymake. LSP mod
   (flycheck-package-setup))
 #+end_src
 
+*** TODO Elsa
+
+Elsa (Emacs Lisp Static Analyser) is a tool that analyses your code without loading or running it. It can track types and provide helpful hints when things don't match up before you even try to run the code.
+#+begin_src emacs-lisp :tangle no
+(use-package elsa)
+(use-package flycheck-elsa) ;; Integration of Elsa into Flycheck.
+#+end_src
+
 ** Language server providers
 *** Eglot
 
