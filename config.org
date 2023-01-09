@@ -222,17 +222,30 @@ Only highlight prog & text buffers
   (prog-mode . highlight-numbers-mode))
 #+end_src
 
-*** Parenthesis
+*** Parentheses
 
+Highlights delimiters such as parentheses, brackets or braces according to their depth. Each successive level is highlighted in a different color. This makes it easy to spot matching delimiters, orient yourself in the code, and tell which statements are at a given depth.
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
   :hook
-  ;; (eshell-mode . rainbow-delimiters-mode) ;; Breaks eshell prompt coloring
   (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+Dynamically highlights the parentheses surrounding point based on nesting-level using configurable lists of colors, background colors, and other properties.
+#+begin_src emacs-lisp
+(use-package highlight-parentheses
+  :custom-face
+  (highlight-parentheses-highlight ((t (:weight bold))))
+  :hook
+  (org-mode . highlight-parentheses-mode)
+  (prog-mode . highlight-parentheses-mode)
+  (eshell-mode . highlight-parentheses-mode)
+  (minibuffer-setup . highlight-parentheses-minibuffer-setup))
 #+end_src
 
 *** Quoted
 
+Highlight Lisp quotes and quoted symbols.
 #+begin_src emacs-lisp
 (use-package highlight-quoted
   :straight (highlight-quoted :type git :host github :repo "Fanael/highlight-quoted")
@@ -1187,6 +1200,8 @@ Magit is a complete text-based user interface to Git.
 Minor mode for Emacs that deals with parens pairs and tries to be smart about it.
 #+begin_src emacs-lisp
 (use-package smartparens
+  :hook
+  (eshell-mode . smartparens-mode) ;; Also enable for eshell
   :config
   (require 'smartparens-config)
   (setq sp-highlight-pair-overlay nil ;; Do not highlight space between parentheses when they are inserted
