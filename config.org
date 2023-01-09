@@ -4,7 +4,7 @@
 
 * Package manager
 
-Initialize the package manager:
+Initialise the package manager:
 #+begin_src emacs-lisp
 ;; Stright.el support
 (setq straight-use-package-by-default t)
@@ -23,7 +23,7 @@ Initialize the package manager:
 (straight-use-package 'use-package)
 #+end_src
 
-* Presonal information
+* Personal information
 
 #+begin_src emacs-lisp
 (setq user-full-name "Sergio Pastor Pérez"
@@ -79,7 +79,7 @@ Escape with ESC:
 ** Window management
 *** Winner
 
-Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in WindowConfiguration.
+Winner Mode is a global minor mode that allows you to “undo” and “redo” changes in Window Configuration.
 #+begin_src emacs-lisp
 (add-hook 'after-init-hook 'winner-mode)
 #+end_src
@@ -168,7 +168,7 @@ Only highlight prog & text buffers
   (text-mode . hl-line-mode))
 #+end_src
 
-*** Useless whitespaces
+*** Useless white spaces
 
 #+begin_src emacs-lisp
 (add-hook 'prog-mode-hook #'(lambda ()
@@ -200,7 +200,7 @@ Highlight numbers.
   (prog-mode . highlight-numbers-mode))
 #+end_src
 
-*** Escape secuences
+*** Escape sequences
 
 Highlight escape sequences.
 #+begin_src emacs-lisp
@@ -504,7 +504,7 @@ Auto-Dark-Emacs is an auto changer between 2 themes, dark/light.
 * Editing functionality
 ** Tabs
 
-Disable tabs for identation, use spaces.
+Disable tabs for indentation, use spaces.
 #+begin_src emacs-lisp
 (setq-default indent-tabs-mode nil
               tab-width 4)
@@ -606,7 +606,7 @@ Needs to have =indent-tabs-mode= enabled.
   (setq evil-goggles-duration 0.1))
 #+end_src
 
-*** Multiedit (the keybind is not working)
+*** Multiedit (the key bind is not working)
 
 #+begin_src emacs-lisp
 (use-package evil-multiedit
@@ -616,7 +616,7 @@ Needs to have =indent-tabs-mode= enabled.
   (evil-define-key* nil evil-multiedit-mode-map (kbd "C-c n") #'iedit-show/hide-context-lines))
 #+end_src
 
-*** Easymotion
+*** Easy motion
 
 #+begin_src emacs-lisp
 (use-package evil-easymotion
@@ -772,7 +772,7 @@ Key legend popup.
 
 ** Orderless
 
-Allow fuzy search on the completion framework.
+Allow fuzzy search on the completion framework.
 #+begin_src emacs-lisp
 (use-package orderless
   :demand t
@@ -889,7 +889,7 @@ Enable icons on the completion framework.
 
 ** Corfu
 
-Autocompletion for inline text.
+Auto completion for inline text.
 #+begin_src emacs-lisp
 (use-package corfu
   :straight (:files (:defaults "extensions/*")) ;; Load the extensions
@@ -1777,7 +1777,7 @@ Display options for dired. They are the same as the ls command:
 =-t=    sort by time, newest first; see --time
 
 =--group-directories-first=
-      roup directories before files;
+      group directories before files;
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -2031,6 +2031,13 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 (add-hook 'ediff-quit-hook 'my-ediff-qh)
 #+end_src
 
+* Dictionaries
+
+#+begin_src emacs-lisp
+(setq ispell-dictionary "american")
+(add-hook 'text-mode-hook #'flyspell-mode)
+#+end_src
+
 * Compilation
 
 #+begin_src emacs-lisp
@@ -2067,7 +2074,7 @@ Add project management to emacs.
 #+end_src
 
 * Extras
-** Nicieties
+** Niceties
 
 #+begin_src emacs-lisp
 ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
@@ -2161,7 +2168,7 @@ Mode to log every key press in emacs with the corresponding action taken.
   :hook (c-mode-common . clang-format+-mode))
 #+end_src
 
-This offers formating of the buffer but the emacs editing style remains unchanges so hitting TAB might not align with what .Clang-format specifies. Here is a function to set the emacs formating style according to the .clang-format
+This offers formatting of the buffer but the emacs editing style remains unchanged so hitting TAB might not align with what .Clang-format specifies. Here is a function to set the emacs formatting style according to the .clang-format
 #+begin_src emacs-lisp
 (require 's) ;; Needed for s-match, load it first
 
@@ -2523,11 +2530,11 @@ _where_:
 #+end_quote
 
 * TODO [2/7] [28%]
-+ [ ] Winner undoo
++ [ ] Winner undo
 + [ ] Change focus
 + [ ] Popper
 + [ ] Shackles
 + [ ] Ediff opens control window in a new frame
 + [ ] Evil-collection should provide bindings for diff-hl
 + [X] Eshell is slow on the first command (some icons are slow to load)
-+ [X] Org-ret open at point now it wont oppen unless is litteraly inside of the link part not on the description
++ [X] Org-ret open at point now it wont open unless is literally inside of the link part not on the description
