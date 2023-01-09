@@ -2256,11 +2256,39 @@ Prism disperses lisp forms (and other languages) into a spectrum of color by dep
 If the colors are not pleasant use =prism-randomize-colors=.
 
 ** Syntax checkers
+*** Flymake
+Flymake is the built-in Emacs package to support on-the-fly syntax checking.
+
+One of the libraries provided by this package ~package-lint-flymake.el~ adds support for flymake to `package-lint'.
+#+begin_src emacs-lisp
+(use-package package-lint
+  :straight (package-lint :files ("*.el" ("data/stdlib-changes" . "data/stdlib-changes")))
+  :hook
+  (emacs-lisp-mode . package-lint-flymake-setup))
+#+end_src
+
+_Note_: Straight usage from ~<C-h o> straight-expand-files-directive~.
+#+begin_quote
+FILES is a list, or nil. Each element of FILES can be a string, a
+cons cell, a list, or the symbol :defaults.
+
+...
+
+If an entry is a cons cell, then it is taken as a literal mapping
+from a file in SRC-DIR to a file in DEST-DIR (the directory is
+not removed). In this case, wildcard expansion does not take
+place.
+#+end_quote
+
 *** Flycheck
 
 Use the more modern syntax checker (Flycheck) over the built-in Flymake. LSP mode will automatically pick it up.
 #+begin_src emacs-lisp
 (use-package flycheck)
+(use-package flycheck-package
+  :after flycheck
+  :init
+  (flycheck-package-setup))
 #+end_src
 
 ** Language server providers
