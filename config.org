@@ -2038,6 +2038,16 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 (add-hook 'text-mode-hook #'flyspell-mode)
 #+end_src
 
+** Define word
+
+See the definition of a word or a phrase at point, without having to switch to a browser.
+#+begin_src emacs-lisp
+(use-package define-word
+  :bind
+  ("C-c d" . define-word-at-point)
+  ("C-c D" . define-word))
+#+end_src
+
 * Compilation
 
 #+begin_src emacs-lisp
