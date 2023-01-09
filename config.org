@@ -4,7 +4,7 @@
 
 * Package manager
 
-Initialise the package manager:
+Initialize the package manager:
 #+begin_src emacs-lisp
 ;; Stright.el support
 (setq straight-use-package-by-default t)
@@ -1811,13 +1811,13 @@ This package defines function dired-subtree-insert which instead inserts the sub
    '(("default"
       ("directory"
        (extension . "d.*"))
-      ("html"
+      ("web"
        (extension . ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml")))
-      ("xml"
+      ("data"
        (extension . ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata" "toml")))
       ("document"
        (extension . ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx")))
-      ("markdown"
+      ("markup"
        (extension . ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt")))
       ("database"
        (extension . ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc")))
