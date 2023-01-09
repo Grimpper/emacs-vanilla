@@ -2270,9 +2270,7 @@ Flymake is the built-in Emacs package to support on-the-fly syntax checking.
 One of the libraries provided by this package ~package-lint-flymake.el~ adds support for flymake to `package-lint'.
 #+begin_src emacs-lisp
 (use-package package-lint
-  :straight (package-lint :files ("*.el" ("data/stdlib-changes" . "data/stdlib-changes")))
-  :hook
-  (emacs-lisp-mode . package-lint-flymake-setup))
+  :straight (package-lint :files ("*.el" ("data/stdlib-changes" . "data/stdlib-changes"))))
 #+end_src
 
 _Note_: Straight usage from ~<C-h o> straight-expand-files-directive~.
@@ -2293,6 +2291,8 @@ place.
 Use the more modern syntax checker (Flycheck) over the built-in Flymake. LSP mode will automatically pick it up.
 #+begin_src emacs-lisp
 (use-package flycheck)
+
+;; This library provides a flycheck checker for the metadata in Emacs Lisp files which are intended to be packages. That metadata includes the package description, its dependencies and more. The checks are performed by the separate package-lint library.
 (use-package flycheck-package
   :after flycheck
   :init
