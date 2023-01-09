@@ -474,7 +474,7 @@ Evaluation Result OverlayS for Emacs Lisp.
 
 #+begin_src emacs-lisp
 (setq default-frame-alist
-   '((font . "JetBrainsMono Nerd Font-12")))
+   '((font . "JetBrainsMono Nerd Font-10")))
 #+end_src
 
 ** Icons
@@ -2538,6 +2538,27 @@ _where_:
   =user=           is the user that you want to use inside the container (optional)
   =container=      is the id or name of the container
 #+end_quote
+
+* Miguel config
+
+This is some extra config added over the default core.
+
+** Additional keybindings
+
+#+begin_src emacs-lisp
+(define-key override-global-map (kbd "<f8>") #'goto-line)
+#+end_src
+
+** Editing mode
+
+*Use emacs state by default (change to evil with <C-z>)*
+#+begin_src emacs-lisp
+(setq evil-default-state 'emacs
+      evil-emacs-state-modes nil
+      evil-insert-state-modes nil
+      evil-motion-state-modes nil
+      evil-normal-state-modes nil)
+#+end_src
 
 * TODO [2/7] [28%]
 + [ ] Winner undo
