@@ -216,10 +216,20 @@ Only highlight prog & text buffers
 
 *** Numbers
 
+Highlight numbers.
 #+begin_src emacs-lisp
 (use-package highlight-numbers
   :hook
   (prog-mode . highlight-numbers-mode))
+#+end_src
+
+*** Escape secuences
+
+Highlight escape sequences.
+#+begin_src emacs-lisp
+(use-package highlight-escape-sequences
+  :init
+  (hes-mode))
 #+end_src
 
 *** Parentheses
@@ -444,7 +454,7 @@ Evaluation Result OverlayS for Emacs Lisp.
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-    (load-theme 'ef-night))
+    (load-theme 'ef-light))
 #+end_src
 
 *** Ef
