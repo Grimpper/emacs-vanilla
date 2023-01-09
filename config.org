@@ -388,7 +388,6 @@ Display progress in the mode line instead."
         minimap-hide-cursor nil
         minimap-hide-scroll-bar t
         minimap-hide-fringes t))
-
 #+end_src
 
 ** Hydra
@@ -594,15 +593,6 @@ Needs to have =indent-tabs-mode= enabled.
   (with-eval-after-load 'evil-collection ;; After
     (setq evil-collection-mode-list (remq 'org evil-collection-mode-list)) ;; Remove org form the list, it's bugged in visual mode. This needs to be in :init to not be overrided by the default values when loaded
     (evil-collection-init))) ;; Enable for magit
-#+end_src
-
-*Use emacs state by default (change to evil with <C-z>)*
-#+begin_src emacs-lisp :tangle no
-(setq evil-default-state 'emacs
-      evil-emacs-state-modes nil
-      evil-insert-state-modes nil
-      evil-motion-state-modes nil
-      evil-normal-state-modes nil)
 #+end_src
 
 *** Surround
