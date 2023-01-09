@@ -2055,9 +2055,8 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 (add-hook 'ediff-quit-hook 'my-ediff-qh)
 #+end_src
 
-* Project management
+* Compilation
 
-Compile project.
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x c") #'(lambda  ()
                                   (interactive)
@@ -2067,8 +2066,12 @@ Compile project.
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
 (add-to-list 'compilation-error-regexp-alist '("^devicetree error: \\(.*?\\):\\([0-9]+\\)" 1 2))
+
+(evil-define-key* 'normal compilation-shell-minor-mode-map "q" 'quit-window) ;; Allow closing compilation buffers by pressing q
+(define-key compilation-shell-minor-mode-map (kbd "C-c q") 'quit-window) ;; Add a keybinding also for emacs mode
 #+end_src
 
+* Project management
 ** Projectile
 
 Add project management to emacs.
