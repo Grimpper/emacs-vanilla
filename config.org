@@ -34,11 +34,11 @@ Initialize the package manager:
 
 Config:
 #+begin_src emacs-lisp
-(menu-bar-mode -1)
+(menu-bar-mode 1)
 (tool-bar-mode -1)
 (show-paren-mode 1)
 (blink-cursor-mode 0)
-(scroll-bar-mode -1)
+(scroll-bar-mode 1)
 (global-visual-line-mode 1) ;; Line truncation (to disable toggle this and toggle-truncate-lines)
 (line-number-mode 1) ;; Display line number on mode-line
 (column-number-mode 1) ;; Display column number on mode-line
@@ -2547,6 +2547,8 @@ This is some extra config added over the default core.
 
 #+begin_src emacs-lisp
 (define-key override-global-map (kbd "<f8>") #'goto-line)
+(define-key override-global-map (kbd "<f11>") #'next-buffer)
+(define-key override-global-map (kbd "<f12>") #'previous-buffer)
 #+end_src
 
 ** Editing mode
