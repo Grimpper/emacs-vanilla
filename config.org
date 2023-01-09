@@ -2034,7 +2034,7 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 * Dictionaries
 
 #+begin_src emacs-lisp
-(setq ispell-dictionary "american")
+(setq ispell-dictionary "british")
 (add-hook 'text-mode-hook #'flyspell-mode)
 #+end_src
 
