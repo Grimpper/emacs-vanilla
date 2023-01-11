@@ -265,10 +265,10 @@ highlight-defined is an Emacs minor mode that highlights defined Emacs Lisp symb
   :config
   (with-eval-after-load 'evil-collection
     (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "q" 'diff-hl-inline-popup-hide)
-    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "p" 'diff-hl-show-hunk-previous)
-    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "n" 'diff-hl-show-hunk-next)
-    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "r" 'diff-hl-show-hunk-revert-hunk)
-    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "c" 'diff-hl-show-hunk-copy-original-text))
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "p" #'diff-hl-show-hunk-previous)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "n" #'diff-hl-show-hunk-next)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "r" #'diff-hl-show-hunk-revert-hunk)
+    (evil-define-key* 'normal diff-hl-inline-popup-transient-mode-map "c" #'diff-hl-show-hunk-copy-original-text))
   :init
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
@@ -526,8 +526,8 @@ Needs to have =indent-tabs-mode= enabled.
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "<mouse-8>") 'evil-jump-backward)
-  (define-key evil-motion-state-map (kbd "<mouse-9>") 'evil-jump-forward))
+  (define-key evil-motion-state-map (kbd "<mouse-8>") #'evil-jump-backward)
+  (define-key evil-motion-state-map (kbd "<mouse-9>") #'evil-jump-forward))
 #+end_src
 
 ** Evil
@@ -540,14 +540,10 @@ Needs to have =indent-tabs-mode= enabled.
         ;; Unbound confliction keys
         ("C-e" . nil)
         ("C-y" . nil)
-        ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
-        ;; Scrolling bindings
-        ("C-<up>" . evil-scroll-line-up)
-        ("C-<down>" . evil-scroll-line-down)
-        ;; Jumping
-        ("g D" . xref-find-definitions-other-window))
+        ("TAB" . nil)) ;; Remove the default binding so org-cycle can take precedence
   (:map evil-normal-state-map
-        ("C-." . nil)) ;; Remove the default binding so embark-act can take precedence
+        ("C-." . nil) ;; Remove default binding so embark-act can take precedence
+        ("M-." . nil)) ;; Remove default binding so xref can take precedence
   :config
   (evil-mode 1)
   (evil-set-undo-system 'undo-tree)
@@ -556,8 +552,8 @@ Needs to have =indent-tabs-mode= enabled.
         '(eww-mode
           profiler-report-mode
           pdf-view-mode))
-  (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
-  (define-key evil-motion-state-map [control-i] 'evil-jump-forward) ;; In emacs normal C-i is tab. The remap is needed
+  (define-key evil-motion-state-map (kbd "C-o") #'evil-jump-backward)
+  (define-key evil-motion-state-map [control-i] #'evil-jump-forward) ;; In emacs normal C-i is tab. The remap is needed
   :init
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
@@ -1288,7 +1284,7 @@ Config:
     (evil-ret)))
 
 (with-eval-after-load 'evil-collection
-  (evil-define-key* 'normal org-mode-map (kbd "RET") '+org-return)) ;; Make RET open links
+  (evil-define-key* 'normal org-mode-map (kbd "RET") #'+org-return)) ;; Make RET open links
 #+end_src
 
 ** Markers
@@ -2066,8 +2062,8 @@ See the definition of a word or a phrase at point, without having to switch to a
 
 (add-to-list 'compilation-error-regexp-alist '("^devicetree error: \\(.*?\\):\\([0-9]+\\)" 1 2))
 
-(evil-define-key* 'normal compilation-shell-minor-mode-map "q" 'quit-window) ;; Allow closing compilation buffers by pressing q
-(define-key compilation-shell-minor-mode-map (kbd "C-c q") 'quit-window) ;; Add a keybinding also for emacs mode
+(evil-define-key* 'normal compilation-shell-minor-mode-map "q" #'quit-window) ;; Allow closing compilation buffers by pressing q
+(define-key compilation-shell-minor-mode-map (kbd "C-c q") #'quit-window) ;; Add a keybinding also for emacs mode
 #+end_src
 
 * Project management
@@ -2135,8 +2131,31 @@ in that buffer, and invoke something much more basic in their place.
 ** Scrolling
 
 #+begin_src emacs-lisp
+;; Vertical
 (setq scroll-step 1
       scroll-conservatively 101)
+
+(with-eval-after-load 'evil-collection
+  ;; Scrolling bindings
+  (define-key evil-motion-state-map (kbd "S-<up>") #'evil-scroll-line-up)
+  (define-key evil-motion-state-map (kbd "S-<down>") #'evil-scroll-line-down)
+
+  ;; Horizontal
+  (define-key evil-motion-state-map (kbd "S-<right>") #'(lambda ()
+                                                          (interactive)
+                                                          (scroll-left 2)))
+  (define-key evil-motion-state-map (kbd "S-<left>") #'(lambda ()
+                                                         (interactive)
+                                                         (scroll-right 2))))
+
+;; Mouse
+(setq mouse-wheel-progressive-speed nil
+      mouse-wheel-scroll-amount '(2
+                                  ((shift)
+                                   . hscroll)
+                                  ((meta))
+                                  ((control)
+                                   . text-scale)))
 #+end_src
 
 ** Screenshot
@@ -2176,6 +2195,18 @@ Mode to log every key press in emacs with the corresponding action taken.
 #+end_src
 
 * Programming
+** Xref
+
+Extra keybindings.
+#+begin_src emacs-lisp
+(define-key global-map (kbd "M-C-.") #'xref-find-definitions-other-window)
+
+;; Jumping
+(with-eval-after-load 'evil-collection
+  (define-key evil-motion-state-map (kbd "g d") #'xref-find-definitions)
+  (define-key evil-motion-state-map (kbd "g D") #'xref-find-definitions-other-window))
+#+end_src
+
 ** Formaters
 *** Clang-format
 
