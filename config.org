@@ -2471,7 +2471,9 @@ Load the python debugger library.
 
 This is needed to provide support for CCLS to LSP-mode.
 #+begin_src emacs-lisp
-(use-package ccls)
+(use-package ccls
+  :hook
+  (c-mode . lsp))
 #+end_src
 
 ** HTML
