@@ -20,3 +20,6 @@
 /straight/modified/
 /recentf
 *.cache
+/.org-id-locations
+/bookmarks
+/org-roam.db
