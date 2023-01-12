@@ -1884,8 +1884,8 @@ Add grouping categories to dired buffers.
 Often times we find ourselves in a situation where a single file or directory is nested in a chain of nested directories with no other content. This is sometimes due to various mandatory layouts demanded by packaging tools or tools generating these deeply-nested "unique" paths to disambiguate architectures or versions (but we often use only one anyway). If the user wants to access these directories they have to quite needlessly drill-down through varying number of "uninteresting" directories to get to the content.
 #+begin_src emacs-lisp
 (use-package dired-collapse
-  :hook
-  (dired-mode . dired-collapse-mode))
+  :bind (:map dired-mode-map
+              ("C-c c" . dired-collapse-mode)))
 #+end_src
 
 ** External open
@@ -2083,6 +2083,9 @@ See the definition of a word or a phrase at point, without having to switch to a
                                   (interactive)
                                   (let ((current-prefix-arg '(4))) ;; C-u
                                     (call-interactively 'compile))))
+
+;; Unbind C-x C-c from closing emacs. It's too similar to the compile comand a pain when hited accidentally.
+(global-unset-key (kbd "C-x C-c"))
 
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
