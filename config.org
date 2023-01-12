@@ -85,11 +85,6 @@ Winner Mode is a global minor mode that allows you to “undo” and “redo” 
 #+end_src
 
 *** Ibuffer
-
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x C-b") #'ibuffer-other-window)
-#+end_src
-
 **** Icons
 
 #+begin_src emacs-lisp
@@ -2107,6 +2102,38 @@ Add project management to emacs.
   :init
   (projectile-mode))
 #+end_src
+
+** Perspective
+
+#+begin_src emacs-lisp
+(use-package perspective
+  :after ibuffer
+  :config
+  (defun persp-ibuffer-other-window (arg)
+  "Invoke IBUFFER with a configuration enabled for Perspective.
+With a prefix arg, show buffers in all perspectives.
+This respects ido-ignore-buffers, since we automatically add
+buffer filtering to ido-mode already (see use of
+PERSP-SET-IDO-BUFFERS)."
+  (interactive "P")
+  (unless (featurep 'ibuffer)
+    (user-error "IBuffer not loaded"))
+  (defvar ido-ignore-buffers)
+  (defvar ibuffer-maybe-show-predicates)
+  (if (and persp-mode (null arg))
+      (let ((ibuffer-maybe-show-predicates (append ibuffer-maybe-show-predicates
+                                                   (list #'(lambda (buf) (persp-buffer-filter buf t)))
+                                                   ido-ignore-buffers)))
+        (ibuffer-other-window))
+    (ibuffer-other-window)))
+  :bind
+  ("C-x C-b" . persp-ibuffer-other-window)         ; or use a nicer switcher, see below
+  :custom
+  (persp-mode-prefix-key (kbd "C-<tab>"))  ; pick your own prefix key here
+  :init
+  (persp-mode))
+#+end_src
+
 
 ** Direnv
 
