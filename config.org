@@ -1307,7 +1307,8 @@ Config:
 
 (setq org-edit-src-content-indentation 0
       org-startup-indented t
-      org-ellipsis "  ")
+      org-ellipsis "  "
+      org-log-done 'time)
 
 ;; This only works if the cursor is in the 'xxx:' part of the link
 (defun +org-return ()
