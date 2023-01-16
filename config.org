@@ -399,13 +399,22 @@ Display progress in the mode line instead."
   (lsp-treemacs-sync-mode))
 #+end_src
 
-** Eros
+** TODO Tab bar
+*** TODO Echo area
 
-Evaluation Result OverlayS for Emacs Lisp.
-#+begin_src emacs-lisp
-(use-package eros
-  :init
-  (eros-mode))
+Display tab names of the tab bar in the echo area.
+#+begin_src emacs-lisp :tangle no
+(use-package tab-bar-echo-area)
+#+end_src
+
+** TODO Echo bar
+
++ Fix echo-bar not inheriting background face for the white spaces.
++ Use this package to display tab-bar-echo-area in the desired position.
+
+Display some custom text at the end of the echo area.
+#+begin_src emacs-lisp :tangle no
+(use-package echo-bar)
 #+end_src
 
 * Theming
@@ -731,7 +740,10 @@ Key legend popup.
   (which-key-mode t))
 #+end_src
 
-* Completion
+* TODO Completion
+
++ Should we configure ~completion-ignored-extensions~ to show binary files as completion options?
+
 ** Vertico
 
 #+begin_src emacs-lisp
@@ -2112,7 +2124,8 @@ Add project management to emacs.
   (projectile-mode))
 #+end_src
 
-** Perspective
+** TODO Perspective
++ Configure the buffer switcher for consult + configure ibuffer filters.
 
 #+begin_src emacs-lisp
 (use-package perspective
@@ -2142,7 +2155,6 @@ PERSP-SET-IDO-BUFFERS)."
   :init
   (persp-mode))
 #+end_src
-
 
 ** Direnv
 
@@ -2500,7 +2512,6 @@ advised)."
           (setf (lsp--client-priority match) old-priority))))))
 #+end_src
 
-
 **** UI
 
 Fancy sideline, popup documentation, VScode-like peek UI, etc.
@@ -2533,6 +2544,15 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
 #+end_src
 
 ** Elisp
+*** Eros
+
+Evaluation Result OverlayS for Emacs Lisp.
+#+begin_src emacs-lisp
+(use-package eros
+  :init
+  (eros-mode))
+#+end_src
+
 *** Suggestions
 
 suggest.el is an Emacs package for discovering elisp functions based on examples. You supply an example input and output, and it makes suggestions.
