@@ -660,6 +660,17 @@ Avy is a GNU Emacs package for jumping to visible text using a char-based decisi
   (set-face-attribute 'iedit-occurrence nil :inherit 'lazy-highlight)) ;; Set iedit face to one that won't collide with lsp-face-highlight-textual
 #+end_src
 
+** Visual replace
+
+A nicer interface for query-replace on Emacs.
+#+begin_src emacs-lisp
+(use-package visual-replace
+  :straight (:type git :host github :repo "szermatt/visual-replace")
+   :bind (("C-c r" . visual-replace)
+          :map isearch-mode-map
+          ("C-c r" . visual-replace-from-isearch)))
+#+end_src
+
 * History
 
 Enable recent files.
@@ -2665,12 +2676,14 @@ _where_:
   =container=      is the id or name of the container
 #+end_quote
 
-* TODO [2/7] [28%]
-+ [ ] Winner undo
-+ [ ] Change focus
+* TODO [6/8] [75%]
++ [X] Winner undo
++ [X] Change focus
 + [ ] Popper
 + [ ] Shackles
-+ [ ] Ediff opens control window in a new frame
-+ [ ] Evil-collection should provide bindings for diff-hl
++ [ ] Highlight indentation (including blank lines)
++ [ ] Remove unnecessary straight build name of cloned from source repos
++ [X] Ediff opens control window in a new frame
++ [X] Evil-collection should provide bindings for diff-hl
 + [X] Eshell is slow on the first command (some icons are slow to load)
 + [X] Org-ret open at point now it wont open unless is literally inside of the link part not on the description
