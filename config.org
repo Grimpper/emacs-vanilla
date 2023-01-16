@@ -91,7 +91,10 @@ Winner Mode is a global minor mode that allows you to “undo” and “redo” 
 (add-hook 'after-init-hook 'winner-mode)
 #+end_src
 
-*** Ibuffer
+*** TODO Ibuffer
+
++ Remove conflicting keybinding with evil-visual-line
+
 **** Icons
 
 #+begin_src emacs-lisp
@@ -2158,23 +2161,28 @@ Add project management to emacs.
 (use-package perspective
   :after ibuffer
   :config
+  ;; Open persp-ibuffer on other window
   (defun persp-ibuffer-other-window (arg)
-  "Invoke IBUFFER with a configuration enabled for Perspective.
+    "Invoke IBUFFER with a configuration enabled for Perspective.
 With a prefix arg, show buffers in all perspectives.
 This respects ido-ignore-buffers, since we automatically add
 buffer filtering to ido-mode already (see use of
 PERSP-SET-IDO-BUFFERS)."
-  (interactive "P")
-  (unless (featurep 'ibuffer)
-    (user-error "IBuffer not loaded"))
-  (defvar ido-ignore-buffers)
-  (defvar ibuffer-maybe-show-predicates)
-  (if (and persp-mode (null arg))
-      (let ((ibuffer-maybe-show-predicates (append ibuffer-maybe-show-predicates
-                                                   (list #'(lambda (buf) (persp-buffer-filter buf t)))
-                                                   ido-ignore-buffers)))
-        (ibuffer-other-window))
-    (ibuffer-other-window)))
+    (interactive "P")
+    (unless (featurep 'ibuffer)
+      (user-error "IBuffer not loaded"))
+    (defvar ido-ignore-buffers)
+    (defvar ibuffer-maybe-show-predicates)
+    (if (and persp-mode (null arg))
+        (let ((ibuffer-maybe-show-predicates (append ibuffer-maybe-show-predicates
+                                                     (list #'(lambda (buf) (persp-buffer-filter buf t)))
+                                                     ido-ignore-buffers)))
+          (ibuffer-other-window))
+      (ibuffer-other-window)))
+  ;; Make consult to only list buffers in current perspective
+  (with-eval-after-load 'consult
+    (consult-customize consult--source-buffer :hidden t :default nil)
+    (add-to-list 'consult-buffer-sources persp-consult-source))
   :bind
   ("C-x C-b" . persp-ibuffer-other-window)         ; or use a nicer switcher, see below
   :custom
