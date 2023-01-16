@@ -76,6 +76,13 @@ Escape with ESC:
 (global-set-key (kbd "<escape>") #'keyboard-escape-quit)
 #+end_src
 
+** Column indicator
+
+#+begin_src emacs-lisp
+(setq-default fill-column 80)
+(global-display-fill-column-indicator-mode 1)
+#+end_src
+
 ** Window management
 *** Winner
 
