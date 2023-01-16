@@ -2063,7 +2063,13 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 
 #+begin_src emacs-lisp
 (setq ispell-dictionary "american")
-(add-hook 'text-mode-hook #'flyspell-mode)
+(add-hook 'text-mode-hook #'flyspell-mode) ;; Enable flyspell for text modes
+(add-hook 'nxml-mode-hook #'(lambda () (flyspell-mode -1))) ;; Disabled in xml files flyspell, it tries to correct tags and strings
+(add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; Enable flyspell for prog modes
+(add-hook 'prog-mode-hook #'(lambda ()
+                              (setq-local flyspell-prog-text-faces
+                                          (delq 'font-lock-string-face
+                                                flyspell-prog-text-faces)))) ;; But disable it from correcting strings
 #+end_src
 
 ** Define word
