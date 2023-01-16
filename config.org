@@ -751,6 +751,14 @@ Key legend popup.
   (which-key-mode t))
 #+end_src
 
+** Info pages
+
+Configure Info mode to separate TAB key from control-i (remember that this problem is inherited from old terminal days which didn't differentiate between <TAB> and <C-i>)
+#+begin_src emacs-lisp
+(with-eval-after-load 'info
+  (evil-define-key* 'normal Info-mode-map [control-i] #'Info-history-forward))
+#+end_src
+
 * TODO Completion
 
 + Should we configure ~completion-ignored-extensions~ to show binary files as completion options?
