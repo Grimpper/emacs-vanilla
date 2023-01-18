@@ -80,7 +80,7 @@ Escape with ESC:
 
 #+begin_src emacs-lisp
 (setq-default fill-column 80)
-(global-display-fill-column-indicator-mode 1)
+(add-hook 'c-mode-hook #'display-fill-column-indicator-mode)
 #+end_src
 
 ** Window management
