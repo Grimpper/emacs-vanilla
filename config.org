@@ -1404,7 +1404,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 (use-package org-roam
   :after org
   :custom
-  (org-roam-directory (file-truename org-directory))
+  (org-roam-directory (file-name-concat (file-truename org-directory) "roam"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
