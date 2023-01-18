@@ -1641,11 +1641,12 @@ In order to support quick jumping to prompts in eshell via consult-outline we ca
 (add-hook 'eshell-mode-hook (lambda () (setq outline-regexp eshell-prompt-regexp)))
 #+end_src
 
-*** Fancy prompt
+*** Prompt
 
 Needed packages:
 #+begin_src emacs-lisp
 (use-package eshell-prompt-extras)
+(use-package shrink-path)
 #+end_src
 
 Custom banner:
@@ -1756,7 +1757,10 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 
 (esh-section esh-dir
              (check-empty-dir)  ;  (get icon folder)
-             (abbreviate-file-name (eshell/pwd))
+             (let ((current-dir (abbreviate-file-name (eshell/pwd))))
+               (if (< (string-width current-dir) 50)
+                   (abbreviate-file-name (eshell/pwd))
+                 (directory-file-name (shrink-path-dirs (abbreviate-file-name (eshell/pwd))))))
              '(:inherit outline-3 :bold ultra-bold :underline t))
 
 (esh-section esh-git
