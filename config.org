@@ -277,7 +277,7 @@ highlight-defined is an Emacs minor mode that highlights defined Emacs Lisp symb
   :init
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
-  (diff-hl-show-hunk-mouse-mode))
+  (global-diff-hl-show-hunk-mouse-mode))
 #+end_src
 
 *** Rainbow mode
