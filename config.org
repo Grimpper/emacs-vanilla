@@ -2642,8 +2642,19 @@ Load the python debugger library.
 This is needed to provide support for CCLS to LSP-mode.
 #+begin_src emacs-lisp
 (use-package ccls
-  :hook
-  (c-mode . lsp))
+  ;; :config
+  ;; (defun +lsp-sticky ()
+  ;;   (interactive)
+  ;;   (let ((target-hook (intern (concat (symbol-name major-mode) "-hook"))))
+  ;;     (if (lsp-mode)
+  ;;         (progn
+  ;;           (lsp-mode 1)
+  ;;           (add-hook target-hook #'lsp))
+  ;;       (progn
+  ;;         (lsp-shutdown-workspace)
+  ;;         (lambda () (lsp-mode -1))
+  ;;         (remove-hook target-hook #'lsp)))))
+  )
 #+end_src
 
 ** HTML
