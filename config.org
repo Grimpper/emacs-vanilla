@@ -2575,6 +2575,16 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
               ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
+** TAGS
+
+#+begin_src emacs-lisp
+(defun create-tags (dir-name)
+  "Create tags file."
+  (interactive "DDirectory: ")
+  (eshell-command
+   (format "find %s -type f -name \"*.[ch]\" | etags -" dir-name)))
+#+end_src
+
 ** Debuggers
 
 *** TODO DAP
