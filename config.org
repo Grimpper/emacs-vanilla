@@ -427,7 +427,6 @@ Display some custom text at the end of the echo area.
 (use-package echo-bar)
 #+end_src
 
-* Theming
 ** Modeline
 
 #+begin_src emacs-lisp
@@ -597,6 +596,9 @@ Needs to have =indent-tabs-mode= enabled.
 (use-package evil-snipe
   :after evil
   :config
+  ;; By default evil snipe uses region face which it's more difficult to read on visual mode.
+  (custom-set-faces
+   '(evil-snipe-matches-face ((t (:inherit lazy-highlight)))))
   (evil-snipe-override-mode 1))
 #+end_src
 
@@ -1309,6 +1311,7 @@ Config:
 (use-package org :straight (:type built-in))
 
 (setq org-edit-src-content-indentation 0
+      org-html-htmlize-output-type 'css
       org-startup-indented t
       org-ellipsis "  "
       org-log-done 'time)
