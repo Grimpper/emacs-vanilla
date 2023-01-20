@@ -1462,8 +1462,11 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 #+begin_src emacs-lisp
 (add-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
-;; Keybinding
+;; Keybindings
 (global-set-key (kbd "C-x t V") #'vterm)
+(with-eval-after-load 'vterm
+  (define-key vterm-mode-map (kbd "<prior>") #'scroll-down-command)
+  (define-key vterm-mode-map (kbd "<next>") #'scroll-up-command))
 #+end_src
 
 *** Toggle
