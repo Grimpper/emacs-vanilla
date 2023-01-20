@@ -1991,8 +1991,8 @@ This package implements useful features present in the ranger file manager which
 #+begin_src emacs-lisp
 (use-package dired-ranger
   :bind (:map dired-mode-map
-              ("C-c y" . dired-ranger-copy)
-              ("C-c p" . dired-ranger-paste)
+              ("C-c w" . dired-ranger-copy)
+              ("C-c y" . dired-ranger-paste)
               ("C-c m" . dired-ranger-move)))
 #+end_src
 
