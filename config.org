@@ -2373,6 +2373,7 @@ Extra keybindings.
 
 ;; Jumping
 (with-eval-after-load 'evil-collection
+  (define-key evil-motion-state-map (kbd "g r") #'xref-find-references)
   (define-key evil-motion-state-map (kbd "g d") #'xref-find-definitions)
   (define-key evil-motion-state-map (kbd "g D") #'xref-find-definitions-other-window))
 #+end_src
@@ -2691,19 +2692,60 @@ Load the python debugger library.
 This is needed to provide support for CCLS to LSP-mode.
 #+begin_src emacs-lisp
 (use-package ccls
-  ;; :config
-  ;; (defun +lsp-sticky ()
-  ;;   (interactive)
-  ;;   (let ((target-hook (intern (concat (symbol-name major-mode) "-hook"))))
-  ;;     (if (lsp-mode)
-  ;;         (progn
-  ;;           (lsp-mode 1)
-  ;;           (add-hook target-hook #'lsp))
-  ;;       (progn
-  ;;         (lsp-shutdown-workspace)
-  ;;         (lambda () (lsp-mode -1))
-  ;;         (remove-hook target-hook #'lsp)))))
-  )
+  :config
+  (defun +lsp-sticky ()
+    "Toggle lsp for the current major mode and add/remove a
+hook for enabling lsp in this mode. This function will toggle lsp without diagnostics.
+This modifies buffer local variables, reopening the file will refresh them to their global value."
+    (interactive)
+    (let ((target-hook (intern (concat (symbol-name major-mode) "-hook"))))
+      (if lsp-mode
+          (progn
+            ;; Shutdown all lsp modules
+            (lsp-shutdown-workspace)
+            (lsp-mode -1)
+            (lsp-ui-mode -1)
+            (lsp-modeline-workspace-status-mode -1)
+            (setq lsp-volar-take-over-mode nil)
+            (remove-hook target-hook #'lsp)
+            ;; Disable the enabled checker
+            (if (bound-and-true-p flycheck-mode)
+                (flycheck-mode -1)
+              (flymake-mode -1)))
+        (progn
+          (add-hook target-hook #'lsp)
+          (lsp)))))
+  (defun +lsp-sticky-no-diagnostics ()
+    "Toggle lsp for the current major mode and add/remove a
+hook for enabling lsp in this mode. This function will toggle lsp without diagnostics.
+This modifies buffer local variables, reopening the file will refresh them to their global value."
+    (interactive)
+    (let ((target-hook (intern (concat (symbol-name major-mode) "-hook")))
+          (disable-diagnostics (lambda ()
+                                 (setq-local lsp-diagnostics-provider :none
+                                             lsp-headerline-breadcrumb-enable-diagnostics nil))))
+      (if lsp-mode
+          (progn
+            ;; Shutdown all lsp modules
+            (lsp-shutdown-workspace)
+            (lsp-mode -1)
+            (lsp-ui-mode -1)
+            (lsp-modeline-workspace-status-mode -1)
+            (setq lsp-volar-take-over-mode nil)
+            (remove-hook target-hook #'lsp)
+            (remove-hook target-hook disable-diagnostics)
+            ;; Restore default top level values
+            (setq-local lsp-diagnostics-provider (default-value 'lsp-diagnostics-provider)
+                        lsp-headerline-breadcrumb-enable-diagnostics (default-value 'lsp-headerline-breadcrumb-enable-diagnostics))
+            ;; Disable the enabled checker
+            (if (bound-and-true-p flycheck-mode)
+                (flycheck-mode -1)
+              (flymake-mode -1)))
+        (progn
+          (add-hook target-hook #'lsp)
+          (add-hook target-hook disable-diagnostics)
+          (funcall disable-diagnostics)
+          (lsp))))))
 #+end_src
 
 ** HTML
