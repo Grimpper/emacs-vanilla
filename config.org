@@ -2195,6 +2195,8 @@ Add project management to emacs.
 #+begin_src emacs-lisp
 (use-package projectile
   :bind (("C-c p" . projectile-command-map))
+  :config
+  (setq projectile-track-known-projects-automatically nil)
   :init
   (projectile-mode))
 #+end_src
