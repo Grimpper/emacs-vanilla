@@ -2238,6 +2238,15 @@ PERSP-SET-IDO-BUFFERS)."
   (persp-mode))
 #+end_src
 
+*** TODO Perspective support
+
++ This is a bit intrusive since you cannot have multiple projects on the same perspective.
+
+Projectile integration for perspective.el
+#+begin_src emacs-lisp :tangle no
+(use-package persp-projectile)
+#+end_src
+
 ** Direnv
 
 #+begin_src emacs-lisp
