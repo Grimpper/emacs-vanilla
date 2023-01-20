@@ -170,7 +170,8 @@ Only highlight prog & text buffers
 (use-package hl-line
   :hook
   (prog-mode . hl-line-mode)
-  (text-mode . hl-line-mode))
+  (text-mode . hl-line-mode)
+  (dired-mode . hl-line-mode))
 #+end_src
 
 *** Useless white spaces
