@@ -20,6 +20,7 @@ Initialize the package manager:
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
 (straight-use-package 'use-package)
 #+end_src
 
@@ -447,7 +448,7 @@ Display some custom text at the end of the echo area.
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-    (load-theme 'ef-light))
+    (load-theme 'ef-night))
 #+end_src
 
 *** Ef
@@ -491,7 +492,7 @@ Display some custom text at the end of the echo area.
 
 #+begin_src emacs-lisp
 (setq default-frame-alist
-   '((font . "JetBrainsMono Nerd Font-12")))
+   '((font . "JetBrains Mono Nerd Font-11")))
 #+end_src
 
 ** Icons
@@ -1343,16 +1344,17 @@ Config:
   (define-key org-mode-map (kbd "S-<return>") nil)
   (evil-define-key* 'normal org-mode-map (kbd "S-<return>") #'+org-return) ;; Open on other window
   (evil-define-key* 'normal org-mode-map (kbd "<return>") #'(lambda ()
-                                                         (interactive)
-                                                         (let ((current-prefix-arg '(4)))
-                                                           (call-interactively '+org-return))))) ;; Make RET open links
+                                                              (interactive)
+                                                              (let ((current-prefix-arg '(4)))
+                                                                (call-interactively '+org-return))))) ;; Make RET open links
 
 ;; Set the directory where to store org notes. Including org-roam-nodes.
-(setq org-directory (concat (getenv "HOME") "/Documents/notes/"))
+(let ((notes-path (concat (getenv "HOME") "/Documents/notes/")))
+  ;; If the org directory is inexistent create it
+  (if (not (file-directory-p notes-path))
+      (make-directory notes-path t))
+  (setq org-directory notes-path))
 
-;; If the org directory is inexistent create it
-(if (not (file-directory-p org-directory))
-    (make-directory org-directory))
 #+end_src
 
 ** Markers
@@ -1391,8 +1393,10 @@ Config:
 
 Open org links to PDF in pdf-tools.
 #+begin_src emacs-lisp
-(use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+(while (executable-find "autoreconf")
+  (use-package org-pdftools
+    :config
+    (add-hook 'org-mode-hook #'org-pdftools-setup-link)))
 #+end_src
 
 ** Transclusion
@@ -1463,6 +1467,8 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 
 *Settings:*
 #+begin_src emacs-lisp
+(load-library "vterm") ;; In guix if you don't load before vterm-toggle it won't find the system emacs-vterm package???
+
 (add-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
 ;; Keybindings
@@ -1476,6 +1482,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
+  :after vterm
   :bind
   ("C-x t v" . vterm-toggle))
 #+end_src
@@ -2157,14 +2164,15 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 * Dictionaries
 
 #+begin_src emacs-lisp
-(setq ispell-dictionary "american")
-(add-hook 'text-mode-hook #'flyspell-mode) ;; Enable flyspell for text modes
-(add-hook 'nxml-mode-hook #'(lambda () (flyspell-mode -1))) ;; Disabled in xml files flyspell, it tries to correct tags and strings
-(add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; Enable flyspell for prog modes
-(add-hook 'prog-mode-hook #'(lambda ()
-                              (setq-local flyspell-prog-text-faces
-                                          (delq 'font-lock-string-face
-                                                flyspell-prog-text-faces)))) ;; But disable it from correcting strings
+(while (executable-find "ispell")
+  (setq ispell-dictionary "american")
+  (add-hook 'text-mode-hook #'flyspell-mode) ;; Enable flyspell for text modes
+  (add-hook 'nxml-mode-hook #'(lambda () (flyspell-mode -1))) ;; Disabled in xml files flyspell, it tries to correct tags and strings
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; Enable flyspell for prog modes
+  (add-hook 'prog-mode-hook #'(lambda ()
+                                (setq-local flyspell-prog-text-faces
+                                            (delq 'font-lock-string-face
+                                                  flyspell-prog-text-faces))))) ;; But disable it from correcting strings
 #+end_src
 
 ** Define word
@@ -2260,7 +2268,8 @@ Projectile integration for perspective.el
 #+begin_src emacs-lisp
 (use-package direnv
   :init
-  (direnv-mode))
+  (while (executable-find "direnv")
+    (direnv-mode)))
 #+end_src
 
 * Extras
