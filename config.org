@@ -1925,9 +1925,7 @@ Add grouping categories to dired buffers.
   (:map dired-mode-map
         ("C-c g" . dired-filter-group-mode))
   (:map dired-filter-group-mode-map
-        ("<tab>" . nil) ;; Free unused keybinding
-        ("C-<tab>" . dired-filter-group-forward-drawer)
-        ("M-<tab>" . dired-filter-group-backward-drawer))
+        ("<tab>" . nil)) ;; Free forward drawer keybinding for subtree opening
   :hook
   (dired-mode . dired-filter-group-mode)
   :custom
