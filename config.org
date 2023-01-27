@@ -1994,6 +1994,16 @@ Often times we find ourselves in a situation where a single file or directory is
 This package adds a mechanism to add "hooks" to dired-find-file that will run before emacs tries its own mechanisms to open the file, thus enabling you to launch other application or code and suspend the default behaviour.
 #+begin_src emacs-lisp
 (use-package dired-open
+  :config
+  ;; Override the default function to use `call-process' instead of `start-process'.
+  ;; This fixes the problem of emacs killing the process before it is opened.
+  (defun dired-open-xdg ()
+    "Try to run `xdg-open' to open the file under point."
+    (interactive)
+    (if (executable-find "xdg-open")
+        (let ((file (ignore-errors (dired-get-file-for-visit))))
+          (call-process "xdg-open" nil 0 nil (file-truename file)))
+      nil))
   :bind (:map dired-mode-map
               ("C-<return>" . dired-open-xdg)
               ("C-c o" . dired-open-xdg)))
