@@ -1366,7 +1366,6 @@ Config:
   (setq org-appear-trigger 'manual
         org-hide-emphasis-markers t
         org-appear-autolinks t
-        org-pretty-entities t
         org-appear-autoentities t
         org-appear-autosubmarkers t)
   :init
@@ -1808,7 +1807,7 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 (esh-section esh-dir
              (check-empty-dir)  ;  (get icon folder)
              (let ((current-dir (abbreviate-file-name (eshell/pwd))))
-               (if (< (string-width current-dir) 50)
+               (if (< (string-width current-dir) 105)
                    (abbreviate-file-name (eshell/pwd))
                  (directory-file-name (shrink-path-dirs (abbreviate-file-name (eshell/pwd))))))
              '(:inherit outline-3 :bold ultra-bold :underline t))
@@ -2654,7 +2653,7 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
 
 *** TODO DAP
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package dap-mode
   :init
   (dap-auto-configure-mode))
