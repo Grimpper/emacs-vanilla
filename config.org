@@ -2179,13 +2179,13 @@ See the definition of a word or a phrase at point, without having to switch to a
 * Compilation
 
 #+begin_src emacs-lisp
-(global-set-key (kbd "C-x c") #'(lambda  ()
+(global-set-key (kbd "C-x c") #'compile)
+
+;; Unbind C-x C-c from closing emacs. It's too similar to the compile comand a pain when hited accidentally.
+(global-set-key (kbd "C-x C-c") #'(lambda  ()
                                   (interactive)
                                   (let ((current-prefix-arg '(4))) ;; C-u
                                     (call-interactively 'compile))))
-
-;; Unbind C-x C-c from closing emacs. It's too similar to the compile comand a pain when hited accidentally.
-(global-unset-key (kbd "C-x C-c"))
 
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
