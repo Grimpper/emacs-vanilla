@@ -1459,6 +1459,14 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
           org-roam-ui-open-on-start t))
 #+end_src
 
+** Agenda
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c a") #'org-agenda)
+
+(setq org-agenda-files '("~/Documents/notes/agenda"))
+#+end_src
+
 * Shells
 ** Vterm
 
