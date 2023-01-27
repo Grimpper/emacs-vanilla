@@ -1912,6 +1912,31 @@ This package defines function dired-subtree-insert which instead inserts the sub
   :bind (:map dired-mode-map
               ("<tab>" . dired-subtree-toggle))
   :config
+  ;; Overrode the treemacs icon insertion function for dired to aknowledge
+  ;; subtrees when inserting the aproppriate icon.
+  (defun treemacs-icons-dired--display-icons-for-subdir (path pos)
+    "Display icons for subdir PATH at given POS."
+    (unless (member path treemacs-icons-dired--covered-subdirs)
+      (add-to-list 'treemacs-icons-dired--covered-subdirs path)
+      (treemacs-with-writable-buffer
+       (save-excursion
+         (goto-char pos)
+         (dired-goto-next-file)
+         (treemacs-block
+          (while (not (eobp))
+            (if (dired-move-to-filename nil)
+                (let* ((file (dired-get-filename nil t))
+                       (icon (if (file-directory-p file)
+                                 (if (dired-subtree--is-expanded-p)
+                                     treemacs-icon-dir-open
+                                   treemacs-icon-dir-closed)
+                               (treemacs-icon-for-file file))))
+                  (insert icon))
+              (treemacs-return nil))
+            (forward-line 1) ))))))
+  ;; Advice `dired-subtree-toggle' function to revert the buffer after the call.
+  ;; HACK: This retriggers the icon insertion function which only runs on buffer opening.
+  ;; There should be a better way to retrigger the icon insertion.
   (advice-add 'dired-subtree-toggle :after (lambda ()
                                              (interactive)
                                              (when treemacs-icons-dired-mode
@@ -1933,8 +1958,6 @@ Add grouping categories to dired buffers.
         ("C-c g" . dired-filter-group-mode))
   (:map dired-filter-group-mode-map
         ("<tab>" . nil)) ;; Free forward drawer keybinding for subtree opening
-  :hook
-  (dired-mode . dired-filter-group-mode)
   :custom
   (dired-filter-group-saved-groups
    '(("default"
