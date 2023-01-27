@@ -575,7 +575,8 @@ Needs to have =indent-tabs-mode= enabled.
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
         evil-kill-on-visual-paste nil
-        evil-want-keybinding nil))
+        evil-want-keybinding nil ;; Don't load the bindings since we will use `evil-collection'
+        evil-disable-insert-state-bindings t)) ;; Disable evil bindings in insert state so you can use emacs bindings "hybrid" state.
 
 (use-package evil-collection
   :after evil
