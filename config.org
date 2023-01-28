@@ -2331,7 +2331,14 @@ Projectile integration for perspective.el
     (setq warning-minimum-level :emergency))
 #+end_src
 
-*** Autorevert
+** Writeroom
+
+Writeroom-mode: distraction-free writing for Emacs.
+#+begin_src emacs-lisp
+(use-package writeroom-mode)
+#+end_src
+
+** Autorevert
 
 #+begin_src emacs-lisp
 (setq auto-revert-interval 0.5
