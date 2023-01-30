@@ -1876,6 +1876,31 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 (setq eshell-prompt-function 'esh-prompt-func)
 #+end_src
 
+** Switcher
+
+#+begin_src emacs-lisp
+(use-package shell-switcher
+  :bind (:map shell-switcher-mode-map
+              ("C-\"" . shell-switcher-switch-buffer)
+              ("C-M-\"" . shell-switcher-new-shell)
+              ("C-x 4 \"" . shell-switcher-switch-buffer-other-window))
+  :config
+  (defun shell-switcher-make-vterm ()
+    (vterm t))
+  (defun smart-shell-switcher-new-shell ()
+      (cond ((derived-mode-p 'eshell-mode)
+             (shell-switcher-make-eshell))
+            ((derived-mode-p 'shell-mode)
+             (shell-switcher-make-shell))
+            ((derived-mode-p 'term-mode)
+             (shell-switcher-make-ansi-term))
+            ((derived-mode-p 'vterm-mode)
+             (shell-switcher-make-vterm))))
+  (setq shell-switcher-new-shell-function 'smart-shell-switcher-new-shell)
+  :init
+  (shell-switcher-mode))
+#+end_src
+
 * Dired
 
 Load the extra dired libraries.
