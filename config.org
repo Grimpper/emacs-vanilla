@@ -512,8 +512,14 @@ Display some custom text at the end of the echo area.
 ** Fonts
 
 #+begin_src emacs-lisp
-(add-to-list 'default-frame-alist
-   '(font . "Iosevka Comfy-12"))
+;; Iosevka Comfy            == monospaced, supports ligatures
+;; Iosevka Comfy Fixed      == monospaced, no ligatures
+;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+(set-face-attribute 'default nil :family "Iosevka Comfy" :height 130)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka Comfy")
+(set-face-attribute 'variable-pitch nil :family "Iosevka Comfy Duo")
 #+end_src
 
 ** Icons
