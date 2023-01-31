@@ -161,7 +161,7 @@ This seems to be the only rule that works:
 #+begin_src emacs-lisp
 (use-package shackle)
 (setq shackle-rules '((compilation-mode :noselect t))
-        shackle-default-rule '(:select t))
+      shackle-default-rule '(:select t))
 
 (shackle-mode)
 #+end_src
@@ -471,7 +471,7 @@ Display some custom text at the end of the echo area.
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-    (load-theme 'ef-night))
+  (load-theme 'ef-night))
 #+end_src
 
 *** Ef
@@ -715,10 +715,10 @@ A nicer interface for query-replace on Emacs.
 #+begin_src emacs-lisp
 (use-package visual-replace
   :straight (:type git :host github :repo "szermatt/visual-replace")
-   :bind
-   ("C-c r" . visual-replace)
-   (:map isearch-mode-map
-         ("C-c r" . visual-replace-from-isearch)))
+  :bind
+  ("C-c r" . visual-replace)
+  (:map isearch-mode-map
+        ("C-c r" . visual-replace-from-isearch)))
 #+end_src
 
 * History
@@ -942,10 +942,10 @@ Add contextual information on the completion menus.
   (:map minibuffer-local-map
         ("M-A" . marginalia-cycle))
   :custom
-    (marginalia-max-relative-age 0)
-    (marginalia-align 'left)
+  (marginalia-max-relative-age 0)
+  (marginalia-align 'left)
   :init
-    (marginalia-mode))
+  (marginalia-mode))
 #+end_src
 
 ** Icons
@@ -953,10 +953,14 @@ Add contextual information on the completion menus.
 Enable icons on the completion framework.
 #+begin_src emacs-lisp
 (use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :config (setq all-the-icons-scale-factor 1.0)
-  :init (all-the-icons-completion-mode))
+  :after
+  (marginalia all-the-icons)
+  :hook
+  (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  :config
+  (setq all-the-icons-scale-factor 1.0)
+  :init
+  (all-the-icons-completion-mode))
 #+end_src
 
 ** Corfu
@@ -1331,16 +1335,16 @@ targets."
                    (not (string-suffix-p "-argument" (cdr binding))))))))
 
 (setq embark-indicators
-  '(embark-which-key-indicator
-    embark-highlight-indicator
-    embark-isearch-highlight-indicator))
+      '(embark-which-key-indicator
+        embark-highlight-indicator
+        embark-isearch-highlight-indicator))
 
 (defun embark-hide-which-key-indicator (fn &rest args)
   "Hide the which-key indicator immediately when using the completing-read prompter."
   (which-key--hide-popup-ignore-command)
   (let ((embark-indicators
          (remq #'embark-which-key-indicator embark-indicators)))
-      (apply fn args)))
+    (apply fn args)))
 
 (advice-add #'embark-completing-read-prompter
             :around #'embark-hide-which-key-indicator)
@@ -1431,9 +1435,9 @@ Config:
 Open org links to PDF in pdf-tools.
 #+begin_src emacs-lisp
 (if (executable-find "autoreconf")
-  (use-package org-pdftools
-    :config
-    (add-hook 'org-mode-hook #'org-pdftools-setup-link)))
+    (use-package org-pdftools
+      :config
+      (add-hook 'org-mode-hook #'org-pdftools-setup-link)))
 #+end_src
 
 ** Transclusion
@@ -1487,17 +1491,17 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 #+begin_src emacs-lisp
 (use-package org-roam-ui
   :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+  (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 #+end_src
 
 ** Agenda
@@ -1561,7 +1565,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 ;; Remove hscroll-margin in shells, otherwise you get jumpiness when the
 ;; cursor comes close to the left/right edges of the window.
 (add-hook 'eshell-mode-hook #'(lambda ()
-                              (setq-local hscroll-margin 0)))
+                                (setq-local hscroll-margin 0)))
 
 (setq eshell-scroll-to-bottom-on-input 'all
       eshell-scroll-to-bottom-on-output 'all
@@ -1928,14 +1932,14 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
   (defun shell-switcher-make-vterm ()
     (vterm t))
   (defun smart-shell-switcher-new-shell ()
-      (cond ((derived-mode-p 'eshell-mode)
-             (shell-switcher-make-eshell))
-            ((derived-mode-p 'shell-mode)
-             (shell-switcher-make-shell))
-            ((derived-mode-p 'term-mode)
-             (shell-switcher-make-ansi-term))
-            ((derived-mode-p 'vterm-mode)
-             (shell-switcher-make-vterm))))
+    (cond ((derived-mode-p 'eshell-mode)
+           (shell-switcher-make-eshell))
+          ((derived-mode-p 'shell-mode)
+           (shell-switcher-make-shell))
+          ((derived-mode-p 'term-mode)
+           (shell-switcher-make-ansi-term))
+          ((derived-mode-p 'vterm-mode)
+           (shell-switcher-make-vterm))))
   (setq shell-switcher-new-shell-function 'smart-shell-switcher-new-shell)
   ;; Also add manually created shells to the shell ring
   (dolist (sh '("shell" "eshell" "term" "vterm"))
@@ -1956,17 +1960,17 @@ Load the extra dired libraries.
 Display options for dired. They are the same as the ls command:
 #+begin_quote
 =-A, --almost-all=
-      do not list implied . and ..
+do not list implied . and ..
 
 =-l=    use a long listing format
 
 =-h, --human-readable=
-      with -l and -s, print sizes like 1K 234M 2G etc.
+with -l and -s, print sizes like 1K 234M 2G etc.
 
 =-t=    sort by time, newest first; see --time
 
 =--group-directories-first=
-      group directories before files;
+group directories before files;
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -2300,9 +2304,9 @@ See the definition of a word or a phrase at point, without having to switch to a
 
 ;; Unbind C-x C-c from closing emacs. It's too similar to the compile comand a pain when hited accidentally.
 (global-set-key (kbd "C-x C-c") #'(lambda  ()
-                                  (interactive)
-                                  (let ((current-prefix-arg '(4))) ;; C-u
-                                    (call-interactively 'compile))))
+                                    (interactive)
+                                    (let ((current-prefix-arg '(4))) ;; C-u
+                                      (call-interactively 'compile))))
 
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
@@ -2378,7 +2382,7 @@ Projectile integration for perspective.el
 (use-package direnv
   :init
   (if (executable-find "direnv")
-    (direnv-mode)))
+      (direnv-mode)))
 #+end_src
 
 * Extras
@@ -2391,14 +2395,14 @@ Projectile integration for perspective.el
       enable-recursive-minibuffers t)
 
 (defun +reload-emacs ()
-    "Reload the Emacs configuration"
-    (interactive)
-    (load-file "~/.emacs.d/init.el"))
+  "Reload the Emacs configuration"
+  (interactive)
+  (load-file "~/.emacs.d/init.el"))
 
 ;; Supress warnings but enable them on debug
 (if init-file-debug
-      (setq warning-minimum-level :debug)
-    (setq warning-minimum-level :emergency))
+    (setq warning-minimum-level :debug)
+  (setq warning-minimum-level :emergency))
 #+end_src
 
 ** Writeroom
@@ -2488,7 +2492,7 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
 (use-package exec-path-from-shell
   :init
   (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)))
+    (exec-path-from-shell-initialize)))
 #+end_src
 
 ** Log keys
@@ -2542,34 +2546,34 @@ otherwise assumed alphabetic."
         ""))))
 
 (add-hook 'c-mode-common-hook  #'(lambda ()
-                              (let* ((clang-format-config
-                                      (shell-command-to-string "clang-format -dump-config"))
-                                     (c-offset (get-clang-format-option clang-format-config "IndentWidth" t))
-                                     (tabs-str (get-clang-format-option clang-format-config "UseTab" nil))
-                                     (base-style
-                                      (get-clang-format-option clang-format-config "BasedOnStyle" nil)))
-                                (progn
-                                  (if (> c-offset 0)
-                                      (setq-local c-basic-offset c-offset)
-                                    (if (not (equal "" base-style))
-                                        (cond ((or (equal "LLVM" base-style)
-                                                   (equal "Google" base-style)
-                                                   (equal "Chromium" base-style)
-                                                   (equal "Mozilla" base-style))
-                                               (setq-local c-basic-offset 2))
-                                              ((equal "WebKit" base-style)
-                                               (setq-local c-basic-offset 4)))))
-                                  (if (not (equal "" tabs-str))
-                                      (if (not (string-equal "Never" tabs-str))
-                                          (setq-local indent-tabs-mode t)
-                                        (setq-local indent-tabs-mode nil))
-                                    (if (not (equal "" base-style))
-                                        (cond ((or (equal "LLVM" base-style)
-                                                   (equal "Google" base-style)
-                                                   (equal "Chromium" base-style)
-                                                   (equal "Mozilla" base-style)
-                                                   (equal "WebKit" base-style))
-                                               (setq-local indent-tabs-mode nil)))))))))
+                                   (let* ((clang-format-config
+                                           (shell-command-to-string "clang-format -dump-config"))
+                                          (c-offset (get-clang-format-option clang-format-config "IndentWidth" t))
+                                          (tabs-str (get-clang-format-option clang-format-config "UseTab" nil))
+                                          (base-style
+                                           (get-clang-format-option clang-format-config "BasedOnStyle" nil)))
+                                     (progn
+                                       (if (> c-offset 0)
+                                           (setq-local c-basic-offset c-offset)
+                                         (if (not (equal "" base-style))
+                                             (cond ((or (equal "LLVM" base-style)
+                                                        (equal "Google" base-style)
+                                                        (equal "Chromium" base-style)
+                                                        (equal "Mozilla" base-style))
+                                                    (setq-local c-basic-offset 2))
+                                                   ((equal "WebKit" base-style)
+                                                    (setq-local c-basic-offset 4)))))
+                                       (if (not (equal "" tabs-str))
+                                           (if (not (string-equal "Never" tabs-str))
+                                               (setq-local indent-tabs-mode t)
+                                             (setq-local indent-tabs-mode nil))
+                                         (if (not (equal "" base-style))
+                                             (cond ((or (equal "LLVM" base-style)
+                                                        (equal "Google" base-style)
+                                                        (equal "Chromium" base-style)
+                                                        (equal "Mozilla" base-style)
+                                                        (equal "WebKit" base-style))
+                                                    (setq-local indent-tabs-mode nil)))))))))
 #+end_src
 
 ** Syntax highlighters
@@ -2734,7 +2738,7 @@ advised)."
                                          nil t)
                  (car workspaces)))
             (lsp-mode +1))
-       (add-transient-hook! 'lsp-after-initialize-hook
+        (add-transient-hook! 'lsp-after-initialize-hook
           (setf (lsp--client-priority match) old-priority))))))
 #+end_src
 
@@ -2951,8 +2955,8 @@ Offers the TRAMP method docker to access running containers:
 =C-x C-f= /docker:user@container:/path/to/file
 
 _where_:
-  =user=           is the user that you want to use inside the container (optional)
-  =container=      is the id or name of the container
+=user=           is the user that you want to use inside the container (optional)
+=container=      is the id or name of the container
 #+end_quote
 
 * Guix
