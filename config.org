@@ -1502,22 +1502,21 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 
 *Settings:*
 #+begin_src emacs-lisp
-(load-library "vterm") ;; In guix if you don't load before vterm-toggle it won't find the system emacs-vterm package???
-
-(add-hook 'vterm-mode-hook #'hide-mode-line-mode)
-
-;; Keybindings
-(global-set-key (kbd "C-x t V") #'vterm)
-(with-eval-after-load 'vterm
-  (define-key vterm-mode-map (kbd "<prior>") #'scroll-down-command)
-  (define-key vterm-mode-map (kbd "<next>") #'scroll-up-command))
+(use-package vterm
+  :straight (:type built-in) ;; This is required in guix to fallback to the system-package.
+  :hook
+  (vterm-mode . hide-mode-line-mode)
+  :bind
+  ("C-x t V" . vterm)
+  (:map vterm-mode-map
+        ("<prior>" . scroll-down-command)
+        ("<next>" . scroll-up-command)))
 #+end_src
 
 *** Toggle
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
-  :after vterm
   :bind
   ("C-x t v" . vterm-toggle))
 #+end_src
