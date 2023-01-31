@@ -834,9 +834,8 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
         ("M-DEL" . vertico-directory-delete-word))
   :config
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (if (string= (getenv "XDG_SESSION_DESKTOP") "budgie-desktop") ;; Temp fix until I find why on budgie the key seccuence when pressing <'> with the current corne keyboard config is different than on others desktop environments.
-      (define-key override-global-map (kbd "C-<dead-acute>") #'vertico-repeat)
-    (define-key override-global-map (kbd "C-\"") #'vertico-repeat))
+  ;; [67108898] is (kbd "C-\"") but writing the <"> character escaped inside the (kbd <key-string>) breaks smartparens for the rest of the file. This is the evaluation of that key secuence through the `kbd' procedure.
+  (define-key override-global-map [67108898] #'vertico-repeat)
   :init
   (vertico-mode)
   (vertico-mouse-mode))
