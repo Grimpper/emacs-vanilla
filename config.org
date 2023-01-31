@@ -2949,6 +2949,16 @@ _where_:
                                      (company-mode -1)))
 #+end_src
 
+** TODO Shell
+
+Emacs integration for =guix shell=
+#+begin_src emacs-lisp
+(use-package emacs-guix-shell
+  :straight (:host nil :type git :repo "https://git.dthompson.us/emacs-guix-shell.git"))
+#+end_src
+
+This package has been mentioned in this mailing list: [[https://lists.gnu.org/archive/html/guix-devel/2022-09/msg00235.html][Re: Emacs integration for 'guix shell']].
+
 * TODO [6/8] [75%]
 + [X] Winner undo
 + [X] Change focus
