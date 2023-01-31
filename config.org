@@ -825,7 +825,7 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
   (if (string= (getenv "XDG_SESSION_DESKTOP") "budgie-desktop") ;; Temp fix until I find why on budgie the key seccuence when pressing <'> with the current corne keyboard config is different than on others desktop environments.
       (define-key override-global-map (kbd "C-<dead-acute>") #'vertico-repeat)
-    (define-key override-global-map (kbd "C-'") #'vertico-repeat))
+    (define-key override-global-map (kbd "C-\"") #'vertico-repeat))
   :init
   (vertico-mode)
   (vertico-mouse-mode))
@@ -1902,6 +1902,31 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 
 ;; Enable the new eshell prompt
 (setq eshell-prompt-function 'esh-prompt-func)
+#+end_src
+
+** Switcher
+
+#+begin_src emacs-lisp
+(use-package shell-switcher
+  :config
+  (defun shell-switcher-make-vterm ()
+    (vterm t))
+  (defun smart-shell-switcher-new-shell ()
+      (cond ((derived-mode-p 'eshell-mode)
+             (shell-switcher-make-eshell))
+            ((derived-mode-p 'shell-mode)
+             (shell-switcher-make-shell))
+            ((derived-mode-p 'term-mode)
+             (shell-switcher-make-ansi-term))
+            ((derived-mode-p 'vterm-mode)
+             (shell-switcher-make-vterm))))
+  (setq shell-switcher-new-shell-function 'smart-shell-switcher-new-shell)
+  ;; Also add manually created shells to the shell ring
+  (dolist (sh '("shell" "eshell" "term" "vterm"))
+    (let ((hook (intern (concat sh "-mode-hook"))))
+      (add-hook hook 'shell-switcher-manually-register-shell)))
+  :init
+  (shell-switcher-mode))
 #+end_src
 
 * Dired
