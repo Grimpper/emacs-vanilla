@@ -1260,7 +1260,10 @@ A fantastic package that uses regex to find possible matches of the target at po
 
 Magit is a complete text-based user interface to Git.
 #+begin_src emacs-lisp
-(use-package magit)
+(use-package magit
+  :config
+  ;; For some reason if not set the daemon mode will have a diferent value.
+  (setq magit-section-visibility-indicator '(magit-fringe-bitmap> . magit-fringe-bitmapv)))
 #+end_src
 
 ** Gitignore
