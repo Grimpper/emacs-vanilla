@@ -2418,7 +2418,11 @@ Projectile integration for perspective.el
 
 Writeroom-mode: distraction-free writing for Emacs.
 #+begin_src emacs-lisp
-(use-package writeroom-mode)
+(use-package writeroom-mode
+  :config
+  (setq writeroom-header-line t) ;; Don't disable the headerline (relevant for info-mode and org-sticky-header)
+  :bind
+  ("C-c f" . writeroom-mode))
 #+end_src
 
 ** Autorevert
