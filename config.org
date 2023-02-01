@@ -807,6 +807,15 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
 #+begin_src emacs-lisp
 (with-eval-after-load 'info
   (evil-define-key* 'normal Info-mode-map [control-i] #'Info-history-forward))
+
+(use-package info+
+  :bind
+  (:map Info-mode-map
+        ("S-RET" . Info-follow-nearest-node-new-window))
+  :config
+  (custom-set-faces
+   '(info-glossary-word ((t (:inherit info-xref :slant italic :underline nil))))
+   '(info-isolated-quote ((t (:inherit info-fixed-pitch))))))
 #+end_src
 
 * TODO Completion
