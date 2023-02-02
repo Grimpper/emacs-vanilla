@@ -1061,9 +1061,19 @@ Auto completion for inline text.
 
 * Search
 ** Wgrep
+
 wgrep allows you to edit a grep buffer and apply those changes to the file buffer like sed interactively. No need to learn sed script, just learn Emacs.
 #+begin_src emacs-lisp
 (use-package wgrep)
+#+end_src
+
+** Ripgrep
+
+Emacs search tool based on ripgrep.
+#+begin_src emacs-lisp
+(use-package rg
+  :bind
+  ("C-c s" . rg-menu))
 #+end_src
 
 ** Consult
@@ -1428,6 +1438,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
   :after org
   :custom
   (org-roam-directory (file-name-concat (file-truename org-directory) "roam"))
+  (org-roam-dailies-directory "journal")
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
