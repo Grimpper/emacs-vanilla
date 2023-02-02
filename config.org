@@ -2982,7 +2982,7 @@ _where_:
 (global-set-key (kbd "C-c g") #'guix)
 
 ;; Remove the guix completion backend for shell since it's not working for now. Fallback to fish completion if fish is available.
-(eval-after-load 'guix-popup
+(eval-after-load 'guix-pcomplete
   (if (fboundp 'pcomplete/guix)
       (fmakunbound 'pcomplete/guix)))
 
