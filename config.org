@@ -2397,6 +2397,27 @@ Projectile integration for perspective.el
       (direnv-mode)))
 #+end_src
 
+* Detached
+
+Package to launch, and manage, detached processes.
+#+begin_src emacs-lisp
+(use-package detached
+  :init
+  (if (executable-find "dtach")
+      (detached-init))
+  :bind
+  (;; Replace `async-shell-command' with `detached-shell-command'
+   ([remap async-shell-command] . detached-shell-command)
+   ;; Replace `compile' with `detached-compile'
+   ([remap compile] . detached-compile)
+   ([remap recompile] . detached-compile-recompile)
+   ;; Replace built in completion of sessions with `consult'
+   ([remap detached-open-session] . detached-consult-session))
+  :custom
+  ((detached-show-output-on-attach t)
+   (detached-terminal-data-command system-type)))
+#+end_src
+
 * Extras
 ** Niceties
 
