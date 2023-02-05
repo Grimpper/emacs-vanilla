@@ -1256,6 +1256,16 @@ A fantastic package that uses regex to find possible matches of the target at po
 #+end_src
 
 * Version control
+** Pinentry
+
+#+begin_src emacs-lisp
+(use-package pinentry
+  :config
+  (setq epg-pinentry-mode 'loopback)
+  :init
+  (pinentry-start))
+#+end_src
+
 ** Magit
 
 Magit is a complete text-based user interface to Git.
