@@ -587,7 +587,10 @@ Needs to have =indent-tabs-mode= enabled.
         ;; Unbound confliction keys
         ("C-e" . nil)
         ("C-y" . nil)
-        ("TAB" . nil)) ;; Remove the default binding so org-cycle can take precedence
+        ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
+        ;; `evil-respect-visual-line-mode' won't affect arrow keys. So let's set it manually.
+        ("<up>" . evil-previous-visual-line)
+        ("<down>" . evil-next-visual-line))
   (:map evil-normal-state-map
         ("C-." . nil) ;; Remove default binding so embark-act can take precedence
         ("M-." . nil)) ;; Remove default binding so xref can take precedence
@@ -601,12 +604,12 @@ Needs to have =indent-tabs-mode= enabled.
           pdf-view-mode))
   (define-key evil-motion-state-map (kbd "C-o") #'evil-jump-backward)
   (define-key evil-motion-state-map [control-i] #'evil-jump-forward) ;; In emacs normal C-i is tab. The remap is needed
-  :init
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
         evil-kill-on-visual-paste nil
         evil-want-keybinding nil ;; Don't load the bindings since we will use `evil-collection'
-        evil-disable-insert-state-bindings t)) ;; Disable evil bindings in insert state so you can use emacs bindings "hybrid" state.
+        evil-disable-insert-state-bindings t ;; Disable evil bindings in insert state so you can use emacs bindings "hybrid" state.
+        evil-respect-visual-line-mode t)) ;; This only applies for <j> and <k>
 
 (use-package evil-collection
   :after evil
@@ -1107,9 +1110,19 @@ Auto completion for inline text.
 
 * Search
 ** Wgrep
+
 wgrep allows you to edit a grep buffer and apply those changes to the file buffer like sed interactively. No need to learn sed script, just learn Emacs.
 #+begin_src emacs-lisp
 (use-package wgrep)
+#+end_src
+
+** Ripgrep
+
+Emacs search tool based on ripgrep.
+#+begin_src emacs-lisp
+(use-package rg
+  :bind
+  ("C-c s" . rg-menu))
 #+end_src
 
 ** Consult
