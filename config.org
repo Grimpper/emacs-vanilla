@@ -63,14 +63,22 @@ Config:
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
-** Fix defaults
+** TODO Fix defaults
+
++ Fix `input-decode-map' updating too early if evaluated later it works properly. This is only an issue when emacs runs as a daemon.
 
 In emacs for history reasons C-i is the same key as TAB. This is a problem inherited from terminal emulators. Using GUI we can do better:
 #+begin_src emacs-lisp
 ;; Fix TAB and C-i (only in GUI)
-(when window-system
+(defun setup-input ()
   (define-key input-decode-map [(control ?i)] [control-i])
   (define-key input-decode-map [(control ?I)] [(shift control-i)]))
+
+;; If it's a daemon instance run setup-input each new frame
+(cond ((daemonp)
+       (add-hook 'server-after-make-frame-hook #'setup-input))
+      ((equal window-system 'x)
+       (setup-input)))
 #+end_src
 
 Escape with ESC:
