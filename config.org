@@ -2272,6 +2272,11 @@ See the definition of a word or a phrase at point, without having to switch to a
 
 (evil-define-key* 'normal compilation-shell-minor-mode-map "q" #'quit-window) ;; Allow closing compilation buffers by pressing q
 (define-key compilation-shell-minor-mode-map (kbd "C-c q") #'quit-window) ;; Add a keybinding also for emacs mode
+
+;; Variables
+(setq compilation-scroll-output t ;; Scroll to botom of compilation screen unless pointer moves
+      ;; Color writing programs should check the TERM environment variable and the terminfo database to check if the terminal supports color. In practice, a lot of programs ignore this and rely on a user setting. Emacs will set the compilation terminal type to dumb by default but this can be overriden by setting the compilation-environment variable.
+      compilation-environment '("TERM=xterm-256color"))
 #+end_src
 
 * Project management
