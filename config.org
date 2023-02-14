@@ -2379,6 +2379,15 @@ Projectile integration for perspective.el
 (global-auto-revert-mode t)
 #+end_src
 
+** Writeroom
+
+Distraction-free writing for Emacs.
+#+begin_src emacs-lisp
+(use-package writeroom-mode
+  :config
+  (setq writeroom-global-effects (remq 'writeroom-set-fullscreen writeroom-global-effects))) ;; Do not set fullscreen on activation
+#+end_src
+
 ** Handle very long lines
 
 When the lines in a file are so long that performance could suffer to an
