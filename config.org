@@ -1821,7 +1821,7 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 (esh-section esh-dir
              (check-empty-dir)  ;  (get icon folder)
              (let ((current-dir (abbreviate-file-name (eshell/pwd))))
-               (if (< (string-width current-dir) 105)
+               (if (< (string-width current-dir) 103)
                    (abbreviate-file-name (eshell/pwd))
                  (directory-file-name (shrink-path-dirs (abbreviate-file-name (eshell/pwd))))))
              '(:inherit outline-3 :bold ultra-bold :underline t))
@@ -2908,6 +2908,7 @@ _where_:
 * TODO [6/8] [75%]
 + [X] Winner undo
 + [X] Change focus
++ [ ] Decide if `completion-ignored-extensions' should be empty to show all files when completing.
 + [ ] Popper
 + [ ] Shackles
 + [ ] Highlight indentation (including blank lines)
