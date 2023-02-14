@@ -552,7 +552,7 @@ Auto-Dark-Emacs is an auto changer between 2 themes, dark/light.
   :init
   (setq auto-dark-light-theme 'ef-light
         auto-dark-dark-theme 'ef-night)
-  (if (string= (getenv "XDG_CURRENT_DESKTOP") "GNOME") ;; Try to enable only for GNOME
+  (if (string-match-p "GNOME" (getenv "XDG_CURRENT_DESKTOP")) ;; Try to enable only for GNOME
       (auto-dark-mode 1)))
 #+end_src
 
@@ -699,10 +699,12 @@ Needs to have =indent-tabs-mode= enabled.
 (use-package expand-region
   :after evil)
 
-(defhydra hydra-expand-region (global-map "C-+")
+(defhydra hydra-expand-region (global-map "C-+") ;; For emacs state
   "expand region"
   ("+" er/expand-region)
   ("-" er/contract-region))
+
+(define-key evil-motion-state-map (kbd "+") #'hydra-expand-region/body)
 #+end_src
 
 ** Avy
@@ -1522,8 +1524,8 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
   ;; Dailies
   ("C-c n j" . org-roam-dailies-capture-today)
   :config
-  ;; If you're using a vertical completion framework, you might want a more informative completion interface
-  (setq org-roam-node-display-template (concat "${title:50}  " (propertize "  ${tags:*}" 'face 'org-tag)))
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface. Propertize the icon with the `all-the-icons' package icons instead of relying on the inherited font.
+  (setq org-roam-node-display-template (concat "${title:50}  " (propertize (all-the-icons-faicon "tags") 'face `(:inherit org-tag :family ,(all-the-icons-faicon-family))) (propertize " ${tags:*}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
@@ -1888,12 +1890,26 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
 
 (defun check-empty-dir ()
   (if (directory-empty-p (eshell/pwd))
-      (char-to-string ?)
-    (char-to-string ?)))
+      (all-the-icons-faicon "folder-open-o")
+    (all-the-icons-faicon "folder-open")))
 
 (defun check-pyenv ()
   (if (boundp 'pyvenv-virtual-env-name)
       pyvenv-virtual-env-name))
+
+;; TODO find a way to use FontAwesome for the icons
+;; (esh-section esh-folder
+;;              (check-empty-dir)
+;;              ""
+;;              '(:inherit outline-3 :family "FontAwesome" :underline t))
+
+;; (esh-section esh-dir
+;;              "" ;; Icon left to `esh-folder'
+;;              (let ((current-dir (abbreviate-file-name (eshell/pwd))))
+;;                (if (< (string-width current-dir) 103)
+;;                    (abbreviate-file-name (eshell/pwd))
+;;                  (directory-file-name (shrink-path-dirs (abbreviate-file-name (eshell/pwd))))))
+;;              '(:inherit outline-3 :bold ultra-bold :underline t))
 
 (esh-section esh-dir
              (check-empty-dir)  ;  (get icon folder)
@@ -1931,7 +1947,7 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
              '(:inherit outline-8))
 
 (esh-section esh-clock
-             ""  ;  (clock icon)
+             (all-the-icons-faicon "clock-o")
              (format-time-string "%H:%M" (current-time))
              '(:inherit outline-7))
 
