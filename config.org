@@ -20,6 +20,7 @@ Initialize the package manager:
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
 (straight-use-package 'use-package)
 #+end_src
 
@@ -38,7 +39,9 @@ Config:
 (tool-bar-mode -1)
 (show-paren-mode 1)
 (blink-cursor-mode 0)
+;; Remove scrollbar
 (scroll-bar-mode -1)
+(setq-default vertical-scroll-bar nil) ;; Buffer local variables to control vertical bar position. If this is true the new frames will follow what the window frame specifies which could not align with the state of `scroll-bar-mode'. This disables scrollbar for frames created by emacsclient.
 (global-visual-line-mode 1) ;; Line truncation (to disable toggle this and toggle-truncate-lines)
 (line-number-mode 1) ;; Display line number on mode-line
 (column-number-mode 1) ;; Display column number on mode-line
@@ -60,14 +63,22 @@ Config:
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
-** Fix defaults
+** TODO Fix defaults
+
++ Fix `input-decode-map' updating too early if evaluated later it works properly. This is only an issue when emacs runs as a daemon.
 
 In emacs for history reasons C-i is the same key as TAB. This is a problem inherited from terminal emulators. Using GUI we can do better:
 #+begin_src emacs-lisp
 ;; Fix TAB and C-i (only in GUI)
-(when window-system
+(defun setup-input ()
   (define-key input-decode-map [(control ?i)] [control-i])
   (define-key input-decode-map [(control ?I)] [(shift control-i)]))
+
+;; If it's a daemon instance run setup-input each new frame
+(cond ((daemonp)
+       (add-hook 'server-after-make-frame-hook #'setup-input))
+      ((equal window-system 'x)
+       (setup-input)))
 #+end_src
 
 Escape with ESC:
@@ -130,9 +141,10 @@ Show files separated on version controlled projects.
 
 #+begin_src emacs-lisp
 (use-package popper
-  :bind (("C-x t l"   . popper-toggle-latest)
-         ("C-x t n"   . popper-cycle)
-         ("C-x t t" . popper-toggle-type))
+  :bind
+  ("C-x t l" . popper-toggle-latest)
+  ("C-x t n" . popper-cycle)
+  ("C-x t t" . popper-toggle-type)
   :init
   (setq popper-reference-buffers '("\\*Messages\\*"
                                    "Output\\*$"
@@ -157,7 +169,7 @@ This seems to be the only rule that works:
 #+begin_src emacs-lisp
 (use-package shackle)
 (setq shackle-rules '((compilation-mode :noselect t))
-        shackle-default-rule '(:select t))
+      shackle-default-rule '(:select t))
 
 (shackle-mode)
 #+end_src
@@ -383,12 +395,13 @@ Display progress in the mode line instead."
 
 #+begin_src emacs-lisp
 (use-package treemacs
-  :bind (("C-x t 1"   . treemacs-delete-other-windows)
-         ("C-x t t"   . treemacs)
-         ("C-x t d"   . treemacs-select-directory)
-         ("C-x t B"   . treemacs-bookmark)
-         ("C-x t C-t" . treemacs-find-file)
-         ("C-x t M-t" . treemacs-find-tag)))
+  :bind
+  ("C-x t 1"   . treemacs-delete-other-windows)
+  ("C-x t t"   . treemacs)
+  ("C-x t d"   . treemacs-select-directory)
+  ("C-x t B"   . treemacs-bookmark)
+  ("C-x t C-t" . treemacs-find-file)
+  ("C-x t M-t" . treemacs-find-tag))
 
 (use-package treemacs-evil
   :after (treemacs evil))
@@ -428,7 +441,9 @@ Display some custom text at the end of the echo area.
 (use-package echo-bar)
 #+end_src
 
-** Modeline
+** TODO Modeline
+
++ Doom modeline has a bug with wich-key where the frame created will jump arround.
 
 #+begin_src emacs-lisp
 (use-package doom-modeline
@@ -440,6 +455,23 @@ Display some custom text at the end of the echo area.
   :init (doom-modeline-mode 1))
 
 (use-package hide-mode-line)
+
+;; (use-package mood-line
+
+;;   ;; Enable mood-line
+;;   :config
+;;   (mood-line-mode)
+
+;;   ;; Use pretty Fira Code-compatible glyphs
+;;   :init
+;;   (setq mood-line-glyph-alist 'mood-line-glyphs-fira-code))
+
+;; (use-package moody
+;;   :config
+;;   (setq x-underline-at-descent-line t)
+;;   (moody-replace-mode-line-buffer-identification)
+;;   (moody-replace-vc-mode)
+;;   (moody-replace-eldoc-minibuffer-message-function))
 #+end_src
 
 ** Color schemes
@@ -447,7 +479,7 @@ Display some custom text at the end of the echo area.
 #+begin_src emacs-lisp
 (setq custom-safe-themes t)
 (with-eval-after-load 'ef-themes
-    (load-theme 'ef-light))
+  (load-theme 'ef-night))
 #+end_src
 
 *** Ef
@@ -490,8 +522,14 @@ Display some custom text at the end of the echo area.
 ** Fonts
 
 #+begin_src emacs-lisp
-(setq default-frame-alist
-   '((font . "JetBrainsMono Nerd Font-12")))
+;; Iosevka Comfy            == monospaced, supports ligatures
+;; Iosevka Comfy Fixed      == monospaced, no ligatures
+;; Iosevka Comfy Duo        == quasi-proportional, supports ligatures
+;; Iosevka Comfy Wide       == like Iosevka Comfy, but wider
+;; Iosevka Comfy Wide Fixed == like Iosevka Comfy Fixed, but wider
+(set-face-attribute 'default nil :family "Iosevka Comfy" :height 130)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka Comfy")
+(set-face-attribute 'variable-pitch nil :family "Iosevka Comfy Duo")
 #+end_src
 
 ** Icons
@@ -640,8 +678,9 @@ Needs to have =indent-tabs-mode= enabled.
 
 #+begin_src emacs-lisp
 (use-package evil-easymotion
-  :bind (:map evilem-map
-              ("SPC" . evil-avy-goto-char-timer))
+  :bind
+  (:map evilem-map
+        ("SPC" . evil-avy-goto-char-timer))
   :init
   (evilem-default-keybindings "gs"))
 #+end_src
@@ -650,7 +689,8 @@ Needs to have =indent-tabs-mode= enabled.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :bind (("C-x C-;" . evilnc-comment-or-uncomment-lines)))
+  :bind
+  ("C-x C-;" . evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** Expand region
@@ -686,9 +726,10 @@ A nicer interface for query-replace on Emacs.
 #+begin_src emacs-lisp
 (use-package visual-replace
   :straight (:type git :host github :repo "szermatt/visual-replace")
-   :bind (("C-c r" . visual-replace)
-          :map isearch-mode-map
-          ("C-c r" . visual-replace-from-isearch)))
+  :bind
+  ("C-c r" . visual-replace)
+  (:map isearch-mode-map
+        ("C-c r" . visual-replace-from-isearch)))
 #+end_src
 
 * History
@@ -777,6 +818,15 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
 #+begin_src emacs-lisp
 (with-eval-after-load 'info
   (evil-define-key* 'normal Info-mode-map [control-i] #'Info-history-forward))
+
+(use-package info+
+  :bind
+  (:map Info-mode-map
+        ("S-RET" . Info-follow-nearest-node-new-window))
+  :config
+  (custom-set-faces
+   '(info-glossary-word ((t (:inherit info-xref :slant italic :underline nil))))
+   '(info-isolated-quote ((t (:inherit info-fixed-pitch))))))
 #+end_src
 
 * TODO Completion
@@ -796,17 +846,16 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
   (vertico-cycle t)
   :bind
   (:map vertico-map
-  ("<prior>" . vertico-scroll-down)
-  ("<next>" . vertico-scroll-up)
-  ("<escape>" . minibuffer-keyboard-quit)
-  ("RET" . vertico-directory-enter)
-  ("DEL" . vertico-directory-delete-char)
-  ("M-DEL" . vertico-directory-delete-word))
+        ("<prior>" . vertico-scroll-down)
+        ("<next>" . vertico-scroll-up)
+        ("<escape>" . minibuffer-keyboard-quit)
+        ("RET" . vertico-directory-enter)
+        ("DEL" . vertico-directory-delete-char)
+        ("M-DEL" . vertico-directory-delete-word))
   :config
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-  (if (string= (getenv "XDG_SESSION_DESKTOP") "budgie-desktop") ;; Temp fix until I find why on budgie the key seccuence when pressing <'> with the current corne keyboard config is different than on others desktop environments.
-      (define-key override-global-map (kbd "C-<dead-acute>") #'vertico-repeat)
-    (define-key override-global-map (kbd "C-\"") #'vertico-repeat))
+  ;; [67108898] is (kbd "C-\"") but writing the <"> character escaped inside the (kbd <key-string>) breaks smartparens for the rest of the file. This is the evaluation of that key secuence through the `kbd' procedure.
+  (define-key override-global-map [67108898] #'vertico-repeat)
   :init
   (vertico-mode)
   (vertico-mouse-mode))
@@ -908,14 +957,15 @@ Allow fuzzy search on the completion framework.
 Add contextual information on the completion menus.
 #+begin_src emacs-lisp
 (use-package marginalia
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-           ("M-A" . marginalia-cycle))
+  :bind
+  ("M-A" . marginalia-cycle)
+  (:map minibuffer-local-map
+        ("M-A" . marginalia-cycle))
   :custom
-    (marginalia-max-relative-age 0)
-    (marginalia-align 'left)
+  (marginalia-max-relative-age 0)
+  (marginalia-align 'left)
   :init
-    (marginalia-mode))
+  (marginalia-mode))
 #+end_src
 
 ** Icons
@@ -923,10 +973,14 @@ Add contextual information on the completion menus.
 Enable icons on the completion framework.
 #+begin_src emacs-lisp
 (use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :config (setq all-the-icons-scale-factor 1.0)
-  :init (all-the-icons-completion-mode))
+  :after
+  (marginalia all-the-icons)
+  :hook
+  (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  :config
+  (setq all-the-icons-scale-factor 1.0)
+  :init
+  (all-the-icons-completion-mode))
 #+end_src
 
 ** Corfu
@@ -934,6 +988,7 @@ Enable icons on the completion framework.
 Auto completion for inline text.
 #+begin_src emacs-lisp
 (use-package corfu
+  :after evil-collection
   :straight (:files (:defaults "extensions/*")) ;; Load the extensions
   ;; Optional customizations
   :custom
@@ -941,9 +996,10 @@ Auto completion for inline text.
   (corfu-auto t)                   ; Enable auto completion
   (tab-always-indent 'complete)
 
-  :bind (:map corfu-map
-              ("C-SPC" . corfu-insert-separator)
-              ("RET" . nil))
+  :bind
+  (:map corfu-map
+        ("C-SPC" . corfu-insert-separator)
+        ("RET" . nil))
   :config
   (defun corfu-enable-always-in-minibuffer ()
     "Enable Corfu in the minibuffer if Vertico/Mct are not active."
@@ -966,11 +1022,11 @@ Auto completion for inline text.
 #+begin_src emacs-lisp
 (use-package corfu-doc
   :after corfu
-  :bind (:map corfu-map
-              ("M-e" . corfu-doc-scroll-down)
-              ("M-d" . corfu-doc-scroll-up)
-              ("M-c" . corfu-doc-toggle))
-  :hook (corfu-mode-hook . corfu-doc-mode))
+  :hook (corfu-mode-hook . corfu-doc-mode)
+  :init
+  (evil-define-key* 'insert corfu-map (kbd "M-e")  #'corfu-doc-scroll-down)
+  (evil-define-key* 'insert corfu-map (kbd "M-d")  #'corfu-doc-scroll-up)
+  (evil-define-key* 'insert corfu-map (kbd "M-c")  #'corfu-doc-toggle))
 #+end_src
 
 *** Icons
@@ -991,30 +1047,31 @@ Auto completion for inline text.
 (use-package cape
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("M-p p" . completion-at-point) ;; capf
-         ("M-p t" . complete-tag)        ;; etags
-         ("M-p d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("M-p h" . cape-history)
-         ("M-p f" . cape-file)
-         ("M-p k" . cape-keyword)
-         ("M-p s" . cape-symbol)
-         ("M-p a" . cape-abbrev)
-         ("M-p i" . cape-ispell)
-         ("M-p l" . cape-line)
-         ("M-p w" . cape-dict)
-         ("M-p \\" . cape-tex)
-         ("M-p _" . cape-tex)
-         ("M-p ^" . cape-tex)
-         ("M-p &" . cape-sgml)
-         ("M-p r" . cape-rfc1345))
+  :bind
+  ("M-p p" . completion-at-point) ;; capf
+  ("M-p t" . complete-tag)        ;; etags
+  ("M-p d" . cape-dabbrev)        ;; or dabbrev-completion
+  ("M-p h" . cape-history)
+  ("M-p f" . cape-file)
+  ("M-p k" . cape-keyword)
+  ("M-p s" . cape-symbol)
+  ("M-p a" . cape-abbrev)
+  ("M-p i" . cape-ispell)
+  ("M-p l" . cape-line)
+  ("M-p w" . cape-dict)
+  ("M-p \\" . cape-tex)
+  ("M-p _" . cape-tex)
+  ("M-p ^" . cape-tex)
+  ("M-p &" . cape-sgml)
+  ("M-p r" . cape-rfc1345)
   :hook
   (prog-mode . (lambda ()
                  (let ((backendList '(cape-file cape-keyword cape-dabbrev cape-symbol)))
-                     (if (member 'elisp-completion-at-point completion-at-point-functions)
-                     (setq-local completion-at-point-functions (-union '(cape-file) (-union completion-at-point-functions backendList))) ;; Add cape-file as the first candidate, later the normal emacs-lisp completion and finally the rest of caps
-                   (setq-local completion-at-point-functions (-union backendList completion-at-point-functions)))))) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
+                   (if (member 'elisp-completion-at-point completion-at-point-functions)
+                       (setq-local completion-at-point-functions (-union '(cape-file) (-union completion-at-point-functions backendList))) ;; Add cape-file as the first candidate, later the normal emacs-lisp completion and finally the rest of caps
+                     (setq-local completion-at-point-functions (-union backendList completion-at-point-functions)))))) ;; Try first keywords and dabbrev after (lsp completion will take precedence) on prog derived modes. File completion will still work if preceded by <.>
   (lsp-after-initialize . (lambda ()
-                (setq-local completion-at-point-functions (-union '(cape-file) completion-at-point-functions)))) ;; Add file completion as first candidate since it won't usually conflict with any other completion backends.
+                            (setq-local completion-at-point-functions (-union '(cape-file) completion-at-point-functions)))) ;; Add file completion as first candidate since it won't usually conflict with any other completion backends.
   (text-mode . (lambda ()
                  (setq-local completion-at-point-functions (-union '(cape-file cape-dabbrev) completion-at-point-functions)))))
 #+end_src
@@ -1082,56 +1139,57 @@ Adds emacs wrappers on UNIX search commands.
 #+begin_src emacs-lisp
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
-  :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
-         ("C-c k" . consult-kmacro)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ("<help> a" . consult-apropos)            ;; orig. apropos-command
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-         ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  :bind
+  ;; C-c bindings (mode-specific-map)
+  ("C-c h" . consult-history)
+  ("C-c m" . consult-mode-command)
+  ("C-c k" . consult-kmacro)
+  ;; C-x bindings (ctl-x-map)
+  ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+  ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+  ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+  ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+  ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+  ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+  ;; Custom M-# bindings for fast register access
+  ("M-#" . consult-register-load)
+  ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+  ("C-M-#" . consult-register)
+  ;; Other custom bindings
+  ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+  ("<help> a" . consult-apropos)            ;; orig. apropos-command
+  ;; M-g bindings (goto-map)
+  ("M-g e" . consult-compile-error)
+  ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+  ("M-g g" . consult-goto-line)             ;; orig. goto-line
+  ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+  ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+  ("M-g m" . consult-mark)
+  ("M-g k" . consult-global-mark)
+  ("M-g i" . consult-imenu)
+  ("M-g I" . consult-imenu-multi)
+  ;; M-s bindings (search-map)
+  ("M-s d" . consult-find)
+  ("M-s D" . consult-locate)
+  ("M-s g" . consult-grep)
+  ("M-s G" . consult-git-grep)
+  ("M-s r" . consult-ripgrep)
+  ("M-s l" . consult-line)
+  ("M-s L" . consult-line-multi)
+  ("M-s m" . consult-multi-occur)
+  ("M-s k" . consult-keep-lines)
+  ("M-s u" . consult-focus-lines)
+  ;; Isearch integration
+  ("M-s e" . consult-isearch-history)
+  (:map isearch-mode-map
+        ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+        ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+        ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+        ("M-s L" . consult-line-multi))            ;; needed by consult-line to detect isearch
+  ;; Minibuffer history
+  (:map minibuffer-local-map
+        ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+        ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -1194,7 +1252,7 @@ Adds emacs wrappers on UNIX search commands.
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
   ;;;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-)
+  )
 #+end_src
 
 *** Dir
@@ -1202,10 +1260,11 @@ Adds emacs wrappers on UNIX search commands.
 Choose a directory and act on it.
 #+begin_src emacs-lisp
 (use-package consult-dir
-  :bind (("C-x C-d" . consult-dir)
-         :map vertico-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
+  :bind
+  ("C-x C-d" . consult-dir)
+  (:map vertico-map
+        ("C-x C-d" . consult-dir)
+        ("C-x C-j" . consult-dir-jump-file)))
 #+end_src
 
 ** Dumb jump
@@ -1218,11 +1277,24 @@ A fantastic package that uses regex to find possible matches of the target at po
 #+end_src
 
 * Version control
+** Pinentry
+
+#+begin_src emacs-lisp
+(use-package pinentry
+  :config
+  (setq epg-pinentry-mode 'loopback)
+  :init
+  (pinentry-start))
+#+end_src
+
 ** Magit
 
 Magit is a complete text-based user interface to Git.
 #+begin_src emacs-lisp
-(use-package magit)
+(use-package magit
+  :config
+  ;; For some reason if not set the daemon mode will have a diferent value.
+  (setq magit-section-visibility-indicator '(magit-fringe-bitmap> . magit-fringe-bitmapv)))
 #+end_src
 
 ** Gitignore
@@ -1260,9 +1332,9 @@ Embark makes it easy to choose a command to run based on what is near point, bot
 #+begin_src emacs-lisp
 (use-package embark
   :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  ("C-." . embark-act)         ;; pick some comfortable binding
+  ("C-;" . embark-dwim)        ;; good alternative: M-.
+  ("C-h B" . embark-bindings) ;; alternative for `describe-bindings'
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command) ;; This lets you use your completion framework to search for comands after a prefix (eg: C-x C-h)
@@ -1306,16 +1378,16 @@ targets."
                    (not (string-suffix-p "-argument" (cdr binding))))))))
 
 (setq embark-indicators
-  '(embark-which-key-indicator
-    embark-highlight-indicator
-    embark-isearch-highlight-indicator))
+      '(embark-which-key-indicator
+        embark-highlight-indicator
+        embark-isearch-highlight-indicator))
 
 (defun embark-hide-which-key-indicator (fn &rest args)
   "Hide the which-key indicator immediately when using the completing-read prompter."
   (which-key--hide-popup-ignore-command)
   (let ((embark-indicators
          (remq #'embark-which-key-indicator embark-indicators)))
-      (apply fn args)))
+    (apply fn args)))
 
 (advice-add #'embark-completing-read-prompter
             :around #'embark-hide-which-key-indicator)
@@ -1357,16 +1429,17 @@ Config:
   (define-key org-mode-map (kbd "S-<return>") nil)
   (evil-define-key* 'normal org-mode-map (kbd "S-<return>") #'+org-return) ;; Open on other window
   (evil-define-key* 'normal org-mode-map (kbd "<return>") #'(lambda ()
-                                                         (interactive)
-                                                         (let ((current-prefix-arg '(4)))
-                                                           (call-interactively '+org-return))))) ;; Make RET open links
+                                                              (interactive)
+                                                              (let ((current-prefix-arg '(4)))
+                                                                (call-interactively '+org-return))))) ;; Make RET open links
 
 ;; Set the directory where to store org notes. Including org-roam-nodes.
-(setq org-directory (concat (getenv "HOME") "/Documents/notes/"))
+(let ((notes-path (concat (getenv "HOME") "/Documents/notes/")))
+  ;; If the org directory is inexistent create it
+  (if (not (file-directory-p notes-path))
+      (make-directory notes-path t))
+  (setq org-directory notes-path))
 
-;; If the org directory is inexistent create it
-(if (not (file-directory-p org-directory))
-    (make-directory org-directory))
 #+end_src
 
 ** Markers
@@ -1404,8 +1477,10 @@ Config:
 
 Open org links to PDF in pdf-tools.
 #+begin_src emacs-lisp
-(use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+(if (executable-find "autoreconf")
+    (use-package org-pdftools
+      :config
+      (add-hook 'org-mode-hook #'org-pdftools-setup-link)))
 #+end_src
 
 ** Transclusion
@@ -1414,8 +1489,8 @@ Open org links to PDF in pdf-tools.
 (use-package org-transclusion
   :after org
   :bind
-  (("C-c t t" . org-transclusion-mode)
-   ("C-c t a" . org-transclusion-add)))
+  ("C-c t t" . org-transclusion-mode)
+  ("C-c t a" . org-transclusion-add))
 #+end_src
 
 ** Sticky header
@@ -1438,14 +1513,14 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
   :after org
   :custom
   (org-roam-directory (file-name-concat (file-truename org-directory) "roam"))
-  (org-roam-dailies-directory "journal")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
+  :bind
+  ("C-c n l" . org-roam-buffer-toggle)
+  ("C-c n f" . org-roam-node-find)
+  ("C-c n g" . org-roam-graph)
+  ("C-c n i" . org-roam-node-insert)
+  ("C-c n c" . org-roam-capture)
+  ;; Dailies
+  ("C-c n j" . org-roam-dailies-capture-today)
   :config
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:50}  " (propertize "  ${tags:*}" 'face 'org-tag)))
@@ -1459,17 +1534,17 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 #+begin_src emacs-lisp
 (use-package org-roam-ui
   :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+  (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 #+end_src
 
 ** Agenda
@@ -1485,13 +1560,15 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 
 *Settings:*
 #+begin_src emacs-lisp
-(add-hook 'vterm-mode-hook #'hide-mode-line-mode)
-
-;; Keybindings
-(global-set-key (kbd "C-x t V") #'vterm)
-(with-eval-after-load 'vterm
-  (define-key vterm-mode-map (kbd "<prior>") #'scroll-down-command)
-  (define-key vterm-mode-map (kbd "<next>") #'scroll-up-command))
+(use-package vterm
+  :straight (:type built-in) ;; This is required in guix to fallback to the system-package.
+  :hook
+  (vterm-mode . hide-mode-line-mode)
+  :bind
+  ("C-x t V" . vterm)
+  (:map vterm-mode-map
+        ("<prior>" . scroll-down-command)
+        ("<next>" . scroll-up-command)))
 #+end_src
 
 *** Toggle
@@ -1531,7 +1608,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 ;; Remove hscroll-margin in shells, otherwise you get jumpiness when the
 ;; cursor comes close to the left/right edges of the window.
 (add-hook 'eshell-mode-hook #'(lambda ()
-                              (setq-local hscroll-margin 0)))
+                                (setq-local hscroll-margin 0)))
 
 (setq eshell-scroll-to-bottom-on-input 'all
       eshell-scroll-to-bottom-on-output 'all
@@ -1898,14 +1975,14 @@ Prompt from: [[http://www.modernemacs.com/post/custom-eshell/][Modern Emacs - Ma
   (defun shell-switcher-make-vterm ()
     (vterm t))
   (defun smart-shell-switcher-new-shell ()
-      (cond ((derived-mode-p 'eshell-mode)
-             (shell-switcher-make-eshell))
-            ((derived-mode-p 'shell-mode)
-             (shell-switcher-make-shell))
-            ((derived-mode-p 'term-mode)
-             (shell-switcher-make-ansi-term))
-            ((derived-mode-p 'vterm-mode)
-             (shell-switcher-make-vterm))))
+    (cond ((derived-mode-p 'eshell-mode)
+           (shell-switcher-make-eshell))
+          ((derived-mode-p 'shell-mode)
+           (shell-switcher-make-shell))
+          ((derived-mode-p 'term-mode)
+           (shell-switcher-make-ansi-term))
+          ((derived-mode-p 'vterm-mode)
+           (shell-switcher-make-vterm))))
   (setq shell-switcher-new-shell-function 'smart-shell-switcher-new-shell)
   ;; Also add manually created shells to the shell ring
   (dolist (sh '("shell" "eshell" "term" "vterm"))
@@ -1926,17 +2003,17 @@ Load the extra dired libraries.
 Display options for dired. They are the same as the ls command:
 #+begin_quote
 =-A, --almost-all=
-      do not list implied . and ..
+do not list implied . and ..
 
 =-l=    use a long listing format
 
 =-h, --human-readable=
-      with -l and -s, print sizes like 1K 234M 2G etc.
+with -l and -s, print sizes like 1K 234M 2G etc.
 
 =-t=    sort by time, newest first; see --time
 
 =--group-directories-first=
-      group directories before files;
+group directories before files;
 #+end_quote
 
 #+begin_src emacs-lisp
@@ -1948,8 +2025,9 @@ Display options for dired. They are the same as the ls command:
 This package defines function dired-subtree-insert which instead inserts the subdirectory directly below its line in the original listing, and indent the listing of subdirectory to resemble a tree-like structure (somewhat similar to tree(1) except the pretty graphics). The tree display is somewhat more intuitive than the default "flat" subdirectory manipulation provided by i.
 #+begin_src emacs-lisp
 (use-package dired-subtree
-  :bind (:map dired-mode-map
-              ("<tab>" . dired-subtree-toggle))
+  :bind
+  (:map dired-mode-map
+        ("<tab>" . dired-subtree-toggle))
   :config
   ;; Overrode the treemacs icon insertion function for dired to aknowledge
   ;; subtrees when inserting the aproppriate icon.
@@ -2047,8 +2125,9 @@ Add grouping categories to dired buffers.
 Often times we find ourselves in a situation where a single file or directory is nested in a chain of nested directories with no other content. This is sometimes due to various mandatory layouts demanded by packaging tools or tools generating these deeply-nested "unique" paths to disambiguate architectures or versions (but we often use only one anyway). If the user wants to access these directories they have to quite needlessly drill-down through varying number of "uninteresting" directories to get to the content.
 #+begin_src emacs-lisp
 (use-package dired-collapse
-  :bind (:map dired-mode-map
-              ("C-c c" . dired-collapse-mode)))
+  :bind
+  (:map dired-mode-map
+        ("C-c c" . dired-collapse-mode)))
 #+end_src
 
 ** External open
@@ -2066,9 +2145,10 @@ This package adds a mechanism to add "hooks" to dired-find-file that will run be
         (let ((file (ignore-errors (dired-get-file-for-visit))))
           (call-process "xdg-open" nil 0 nil (file-truename file)))
       nil))
-  :bind (:map dired-mode-map
-              ("C-<return>" . dired-open-xdg)
-              ("C-c o" . dired-open-xdg)))
+  :bind
+  (:map dired-mode-map
+        ("C-<return>" . dired-open-xdg)
+        ("C-c o" . dired-open-xdg)))
 #+end_src
 
 ** Ranger
@@ -2076,10 +2156,11 @@ This package adds a mechanism to add "hooks" to dired-find-file that will run be
 This package implements useful features present in the ranger file manager which are missing in dired. This includes multi-stage copying with ~dired-ranger-copy~
 #+begin_src emacs-lisp
 (use-package dired-ranger
-  :bind (:map dired-mode-map
-              ("C-c w" . dired-ranger-copy)
-              ("C-c y" . dired-ranger-paste)
-              ("C-c m" . dired-ranger-move)))
+  :bind
+  (:map dired-mode-map
+        ("C-c w" . dired-ranger-copy)
+        ("C-c y" . dired-ranger-paste)
+        ("C-c m" . dired-ranger-move)))
 #+end_src
 
 ** Rsync
@@ -2087,8 +2168,9 @@ This package implements useful features present in the ranger file manager which
 This repository provides a transient version called dired-transient-rsync. This wraps the command in a `magit` like transient interface allowing you to tweaks the parameters for your call.
 #+begin_src emacs-lisp
 (use-package dired-rsync
-  :bind (:map dired-mode-map
-              ("C-c r" . dired-rsync-transient)))
+  :bind
+  (:map dired-mode-map
+        ("C-c r" . dired-rsync-transient)))
 #+end_src
 
 ** Theming
@@ -2116,31 +2198,32 @@ Extra font lock rules for a more colourful dired (eg. font lock on permissions).
 (use-package pdf-tools
   :config
   (pdf-tools-install)
-  :bind (:map pdf-view-mode-map
-              ("\\" . hydra-pdftools/body)
-              ("<s-spc>" .  pdf-view-scroll-down-or-next-page)
-              ("g"  . pdf-view-first-page)
-              ("G"  . pdf-view-last-page)
-              ("l"  . image-forward-hscroll)
-              ("h"  . image-backward-hscroll)
-              ("j"  . pdf-view-next-page)
-              ("k"  . pdf-view-previous-page)
-              ("e"  . pdf-view-goto-page)
-              ("u"  . pdf-view-revert-buffer)
-              ("al" . pdf-annot-list-annotations)
-              ("ad" . pdf-annot-delete)
-              ("aa" . pdf-annot-attachment-dired)
-              ("am" . pdf-annot-add-markup-annotation)
-              ("at" . pdf-annot-add-text-annotation)
-              ("y"  . pdf-view-kill-ring-save)
-              ("i"  . pdf-misc-display-metadata)
-              ("s"  . pdf-occur)
-              ("b"  . pdf-view-set-slice-from-bounding-box)
-              ("r"  . pdf-view-reset-slice)))
+  :bind
+  (:map pdf-view-mode-map
+        ("\\" . hydra-pdftools/body)
+        ("<s-spc>" .  pdf-view-scroll-down-or-next-page)
+        ("g"  . pdf-view-first-page)
+        ("G"  . pdf-view-last-page)
+        ("l"  . image-forward-hscroll)
+        ("h"  . image-backward-hscroll)
+        ("j"  . pdf-view-next-page)
+        ("k"  . pdf-view-previous-page)
+        ("e"  . pdf-view-goto-page)
+        ("u"  . pdf-view-revert-buffer)
+        ("al" . pdf-annot-list-annotations)
+        ("ad" . pdf-annot-delete)
+        ("aa" . pdf-annot-attachment-dired)
+        ("am" . pdf-annot-add-markup-annotation)
+        ("at" . pdf-annot-add-text-annotation)
+        ("y"  . pdf-view-kill-ring-save)
+        ("i"  . pdf-misc-display-metadata)
+        ("s"  . pdf-occur)
+        ("b"  . pdf-view-set-slice-from-bounding-box)
+        ("r"  . pdf-view-reset-slice)))
 
 ;; Hydra menu
 (defhydra hydra-pdftools (:color blue :hint nil)
-        "
+  "
                                                                       ╭───────────┐
        Move  History   Scale/Fit     Annotations  Search/Link    Do   │ PDF Tools │
    ╭──────────────────────────────────────────────────────────────────┴───────────╯
@@ -2155,38 +2238,38 @@ Extra font lock rules for a more colourful dired (eg. font lock on permissions).
          ^^_G_^^
    --------------------------------------------------------------------------------
         "
-        ("\\" hydra-master/body "back")
-        ("<ESC>" nil "quit")
-        ("al" pdf-annot-list-annotations)
-        ("ad" pdf-annot-delete)
-        ("aa" pdf-annot-attachment-dired)
-        ("am" pdf-annot-add-markup-annotation)
-        ("at" pdf-annot-add-text-annotation)
-        ("y"  pdf-view-kill-ring-save)
-        ("+" pdf-view-enlarge :color red)
-        ("-" pdf-view-shrink :color red)
-        ("0" pdf-view-scale-reset)
-        ("H" pdf-view-fit-height-to-window)
-        ("W" pdf-view-fit-width-to-window)
-        ("P" pdf-view-fit-page-to-window)
-        ("n" pdf-view-next-page-command :color red)
-        ("p" pdf-view-previous-page-command :color red)
-        ("d" pdf-view-dark-minor-mode)
-        ("b" pdf-view-set-slice-from-bounding-box)
-        ("r" pdf-view-reset-slice)
-        ("g" pdf-view-first-page)
-        ("G" pdf-view-last-page)
-        ("e" pdf-view-goto-page)
-        ("o" pdf-outline)
-        ("s" pdf-occur)
-        ("i" pdf-misc-display-metadata)
-        ("u" pdf-view-revert-buffer)
-        ("F" pdf-links-action-perfom)
-        ("f" pdf-links-isearch-link)
-        ("B" pdf-history-backward :color red)
-        ("N" pdf-history-forward :color red)
-        ("l" image-forward-hscroll :color red)
-        ("h" image-backward-hscroll :color red))
+  ("\\" hydra-master/body "back")
+  ("<ESC>" nil "quit")
+  ("al" pdf-annot-list-annotations)
+  ("ad" pdf-annot-delete)
+  ("aa" pdf-annot-attachment-dired)
+  ("am" pdf-annot-add-markup-annotation)
+  ("at" pdf-annot-add-text-annotation)
+  ("y"  pdf-view-kill-ring-save)
+  ("+" pdf-view-enlarge :color red)
+  ("-" pdf-view-shrink :color red)
+  ("0" pdf-view-scale-reset)
+  ("H" pdf-view-fit-height-to-window)
+  ("W" pdf-view-fit-width-to-window)
+  ("P" pdf-view-fit-page-to-window)
+  ("n" pdf-view-next-page-command :color red)
+  ("p" pdf-view-previous-page-command :color red)
+  ("d" pdf-view-dark-minor-mode)
+  ("b" pdf-view-set-slice-from-bounding-box)
+  ("r" pdf-view-reset-slice)
+  ("g" pdf-view-first-page)
+  ("G" pdf-view-last-page)
+  ("e" pdf-view-goto-page)
+  ("o" pdf-outline)
+  ("s" pdf-occur)
+  ("i" pdf-misc-display-metadata)
+  ("u" pdf-view-revert-buffer)
+  ("F" pdf-links-action-perfom)
+  ("f" pdf-links-isearch-link)
+  ("B" pdf-history-backward :color red)
+  ("N" pdf-history-forward :color red)
+  ("l" image-forward-hscroll :color red)
+  ("h" image-backward-hscroll :color red))
 #+end_src
 
 * DIFF
@@ -2235,14 +2318,16 @@ By default ediff spawns a new frame to display files to be compared or merged. R
 * Dictionaries
 
 #+begin_src emacs-lisp
-(setq ispell-dictionary "american")
-(add-hook 'text-mode-hook #'flyspell-mode) ;; Enable flyspell for text modes
-(add-hook 'nxml-mode-hook #'(lambda () (flyspell-mode -1))) ;; Disabled in xml files flyspell, it tries to correct tags and strings
-(add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; Enable flyspell for prog modes
-(add-hook 'prog-mode-hook #'(lambda ()
-                              (setq-local flyspell-prog-text-faces
-                                          (delq 'font-lock-string-face
-                                                flyspell-prog-text-faces)))) ;; But disable it from correcting strings
+(if (executable-find "ispell")
+    (progn
+      (setq ispell-dictionary "american")
+      (add-hook 'text-mode-hook #'flyspell-mode) ;; Enable flyspell for text modes
+      (add-hook 'nxml-mode-hook #'(lambda () (flyspell-mode -1))) ;; Disabled in xml files flyspell, it tries to correct tags and strings
+      (add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; Enable flyspell for prog modes
+      (add-hook 'prog-mode-hook #'(lambda ()
+                                    (setq-local flyspell-prog-text-faces
+                                                (delq 'font-lock-string-face
+                                                      flyspell-prog-text-faces)))))) ;; But disable it from correcting strings
 #+end_src
 
 ** Define word
@@ -2262,9 +2347,9 @@ See the definition of a word or a phrase at point, without having to switch to a
 
 ;; Unbind C-x C-c from closing emacs. It's too similar to the compile comand a pain when hited accidentally.
 (global-set-key (kbd "C-x C-c") #'(lambda  ()
-                                  (interactive)
-                                  (let ((current-prefix-arg '(4))) ;; C-u
-                                    (call-interactively 'compile))))
+                                    (interactive)
+                                    (let ((current-prefix-arg '(4))) ;; C-u
+                                      (call-interactively 'compile))))
 
 (put 'compile-command 'safe-local-variable #'booleanp) ;; Allow compile-command to be a safe variable (this is dangerous be cautious with what you allow to run)
 
@@ -2285,7 +2370,8 @@ See the definition of a word or a phrase at point, without having to switch to a
 Add project management to emacs.
 #+begin_src emacs-lisp
 (use-package projectile
-  :bind (("C-c p" . projectile-command-map))
+  :bind
+  ("C-c p" . projectile-command-map)
   :config
   (setq projectile-track-known-projects-automatically nil)
   :init
@@ -2343,7 +2429,29 @@ Projectile integration for perspective.el
 #+begin_src emacs-lisp
 (use-package direnv
   :init
-  (direnv-mode))
+  (if (executable-find "direnv")
+      (direnv-mode)))
+#+end_src
+
+* Detached
+
+Package to launch, and manage, detached processes.
+#+begin_src emacs-lisp
+(use-package detached
+  :init
+  (if (executable-find "dtach")
+      (detached-init))
+  :bind
+  (;; Replace `async-shell-command' with `detached-shell-command'
+   ([remap async-shell-command] . detached-shell-command)
+   ;; Replace `compile' with `detached-compile'
+   ([remap compile] . detached-compile)
+   ([remap recompile] . detached-compile-recompile)
+   ;; Replace built in completion of sessions with `consult'
+   ([remap detached-open-session] . detached-consult-session))
+  :custom
+  ((detached-show-output-on-attach t)
+   (detached-terminal-data-command system-type)))
 #+end_src
 
 * Extras
@@ -2356,17 +2464,28 @@ Projectile integration for perspective.el
       enable-recursive-minibuffers t)
 
 (defun +reload-emacs ()
-    "Reload the Emacs configuration"
-    (interactive)
-    (load-file "~/.emacs.d/init.el"))
+  "Reload the Emacs configuration"
+  (interactive)
+  (load-file "~/.emacs.d/init.el"))
 
 ;; Supress warnings but enable them on debug
 (if init-file-debug
-      (setq warning-minimum-level :debug)
-    (setq warning-minimum-level :emergency))
+    (setq warning-minimum-level :debug)
+  (setq warning-minimum-level :emergency))
 #+end_src
 
-*** Autorevert
+** Writeroom
+
+Writeroom-mode: distraction-free writing for Emacs.
+#+begin_src emacs-lisp
+(use-package writeroom-mode
+  :config
+  (setq writeroom-header-line t) ;; Don't disable the headerline (relevant for info-mode and org-sticky-header)
+  :bind
+  ("C-c f" . writeroom-mode))
+#+end_src
+
+** Autorevert
 
 #+begin_src emacs-lisp
 (setq auto-revert-interval 0.5
@@ -2440,12 +2559,13 @@ in that buffer, and invoke something much more basic in their place.
 A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many useful interactive commands to enhance your overall Emacs experience.
 #+begin_src emacs-lisp
 (use-package crux
-  :bind (("C-x O" . crux-open-with)
-         ("C-x U" . crux-view-url)
-         ("C-x E" . crux-eval-and-replace)
-         ("C-x D" . crux-delete-file-and-buffer)
-         ("C-x C" . crux-copy-file-preserve-attributes)
-         ("C-x R" . crux-rename-file-and-buffer)))
+  :bind
+  ("C-x O" . crux-open-with)
+  ("C-x U" . crux-view-url)
+  ("C-x E" . crux-eval-and-replace)
+  ("C-x D" . crux-delete-file-and-buffer)
+  ("C-x C" . crux-copy-file-preserve-attributes)
+  ("C-x R" . crux-rename-file-and-buffer))
 #+end_src
 
 ** Inherit shell
@@ -2454,7 +2574,7 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
 (use-package exec-path-from-shell
   :init
   (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)))
+    (exec-path-from-shell-initialize)))
 #+end_src
 
 ** Log keys
@@ -2508,34 +2628,34 @@ otherwise assumed alphabetic."
         ""))))
 
 (add-hook 'c-mode-common-hook  #'(lambda ()
-                              (let* ((clang-format-config
-                                      (shell-command-to-string "clang-format -dump-config"))
-                                     (c-offset (get-clang-format-option clang-format-config "IndentWidth" t))
-                                     (tabs-str (get-clang-format-option clang-format-config "UseTab" nil))
-                                     (base-style
-                                      (get-clang-format-option clang-format-config "BasedOnStyle" nil)))
-                                (progn
-                                  (if (> c-offset 0)
-                                      (setq-local c-basic-offset c-offset)
-                                    (if (not (equal "" base-style))
-                                        (cond ((or (equal "LLVM" base-style)
-                                                   (equal "Google" base-style)
-                                                   (equal "Chromium" base-style)
-                                                   (equal "Mozilla" base-style))
-                                               (setq-local c-basic-offset 2))
-                                              ((equal "WebKit" base-style)
-                                               (setq-local c-basic-offset 4)))))
-                                  (if (not (equal "" tabs-str))
-                                      (if (not (string-equal "Never" tabs-str))
-                                          (setq-local indent-tabs-mode t)
-                                        (setq-local indent-tabs-mode nil))
-                                    (if (not (equal "" base-style))
-                                        (cond ((or (equal "LLVM" base-style)
-                                                   (equal "Google" base-style)
-                                                   (equal "Chromium" base-style)
-                                                   (equal "Mozilla" base-style)
-                                                   (equal "WebKit" base-style))
-                                               (setq-local indent-tabs-mode nil)))))))))
+                                   (let* ((clang-format-config
+                                           (shell-command-to-string "clang-format -dump-config"))
+                                          (c-offset (get-clang-format-option clang-format-config "IndentWidth" t))
+                                          (tabs-str (get-clang-format-option clang-format-config "UseTab" nil))
+                                          (base-style
+                                           (get-clang-format-option clang-format-config "BasedOnStyle" nil)))
+                                     (progn
+                                       (if (> c-offset 0)
+                                           (setq-local c-basic-offset c-offset)
+                                         (if (not (equal "" base-style))
+                                             (cond ((or (equal "LLVM" base-style)
+                                                        (equal "Google" base-style)
+                                                        (equal "Chromium" base-style)
+                                                        (equal "Mozilla" base-style))
+                                                    (setq-local c-basic-offset 2))
+                                                   ((equal "WebKit" base-style)
+                                                    (setq-local c-basic-offset 4)))))
+                                       (if (not (equal "" tabs-str))
+                                           (if (not (string-equal "Never" tabs-str))
+                                               (setq-local indent-tabs-mode t)
+                                             (setq-local indent-tabs-mode nil))
+                                         (if (not (equal "" base-style))
+                                             (cond ((or (equal "LLVM" base-style)
+                                                        (equal "Google" base-style)
+                                                        (equal "Chromium" base-style)
+                                                        (equal "Mozilla" base-style)
+                                                        (equal "WebKit" base-style))
+                                                    (setq-local indent-tabs-mode nil)))))))))
 #+end_src
 
 ** Syntax highlighters
@@ -2700,7 +2820,7 @@ advised)."
                                          nil t)
                  (car workspaces)))
             (lsp-mode +1))
-       (add-transient-hook! 'lsp-after-initialize-hook
+        (add-transient-hook! 'lsp-after-initialize-hook
           (setf (lsp--client-priority match) old-priority))))))
 #+end_src
 
@@ -2710,9 +2830,10 @@ Fancy sideline, popup documentation, VScode-like peek UI, etc.
 #+begin_src emacs-lisp
 (use-package lsp-ui
   :after lsp-mode
-  :bind (:map lsp-ui-mode-map
-              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-              ([remap xref-find-references] . lsp-ui-peek-find-references)))
+  :bind
+  (:map lsp-ui-mode-map
+        ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+        ([remap xref-find-references] . lsp-ui-peek-find-references)))
 #+end_src
 
 **** Consult
@@ -2721,8 +2842,9 @@ Mimic a few features of helm-lsp and lsp-ivy in consult workflow.
 #+begin_src emacs-lisp
 (use-package consult-lsp
   :after lsp-mode
-  :bind (:map lsp-mode-map
-              ([remap xref-find-apropos] . consult-lsp-symbols)))
+  :bind
+  (:map lsp-mode-map
+        ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
 ** TAGS
@@ -2917,9 +3039,34 @@ Offers the TRAMP method docker to access running containers:
 =C-x C-f= /docker:user@container:/path/to/file
 
 _where_:
-  =user=           is the user that you want to use inside the container (optional)
-  =container=      is the id or name of the container
+=user=           is the user that you want to use inside the container (optional)
+=container=      is the id or name of the container
 #+end_quote
+
+* Guix
+
+#+begin_src emacs-lisp
+;; Using the emacs-guix package provided by the guix package manager
+(global-set-key (kbd "C-c g") #'guix)
+
+;; Remove the guix completion backend for shell since it's not working for now. Fallback to fish completion if fish is available.
+(eval-after-load 'guix-pcomplete
+  (if (fboundp 'pcomplete/guix)
+      (fmakunbound 'pcomplete/guix)))
+
+(add-hook 'geiser-repl-mode-hook #'(lambda ()
+                                     (company-mode -1)))
+#+end_src
+
+** TODO Shell
+
+Emacs integration for =guix shell=
+#+begin_src emacs-lisp
+(use-package emacs-guix-shell
+  :straight (:host nil :type git :repo "https://git.dthompson.us/emacs-guix-shell.git"))
+#+end_src
+
+This package has been mentioned in this mailing list: [[https://lists.gnu.org/archive/html/guix-devel/2022-09/msg00235.html][Re: Emacs integration for 'guix shell']].
 
 * TODO [6/8] [75%]
 + [X] Winner undo
