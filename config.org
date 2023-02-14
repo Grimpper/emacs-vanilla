@@ -2754,12 +2754,6 @@ suggest.el is an Emacs package for discovering elisp functions based on examples
 #+end_src
 
 ** Python
-
-Load the python debugger library.
-#+begin_src emacs-lisp
-(require 'dap-python)
-#+end_src
-
 *** Language servers
 **** Pyright
 
