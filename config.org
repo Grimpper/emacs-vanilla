@@ -2842,6 +2842,14 @@ This modifies buffer local variables, reopening the file will refresh them to th
           (lsp))))))
 #+end_src
 
+** ASM
+
+#+begin_src emacs-lisp
+(add-hook 'asm-mode-hook #'(lambda ()
+                             (setq-local tab-always-indent 'complete
+                                         tab-first-completion 'word)))
+#+end_src
+
 ** HTML
 *** Htmlize
 
