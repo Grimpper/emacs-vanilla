@@ -595,10 +595,7 @@ Needs to have =indent-tabs-mode= enabled.
         ;; Unbound confliction keys
         ("C-e" . nil)
         ("C-y" . nil)
-        ("TAB" . nil) ;; Remove the default binding so org-cycle can take precedence
-        ;; `evil-respect-visual-line-mode' won't affect arrow keys. So let's set it manually.
-        ("<up>" . evil-previous-visual-line)
-        ("<down>" . evil-next-visual-line))
+        ("TAB" . nil)) ;; Remove the default binding so org-cycle can take precedence
   (:map evil-normal-state-map
         ("C-." . nil) ;; Remove default binding so embark-act can take precedence
         ("M-." . nil)) ;; Remove default binding so xref can take precedence
@@ -612,6 +609,11 @@ Needs to have =indent-tabs-mode= enabled.
           pdf-view-mode))
   (define-key evil-motion-state-map (kbd "C-o") #'evil-jump-backward)
   (define-key evil-motion-state-map [control-i] #'evil-jump-forward) ;; In emacs normal C-i is tab. The remap is needed
+  ;; `evil-respect-visual-line-mode' won't affect arrow keys. So let's set it manually. This has to be set that way so keybinding from other modes (such as undoo-tree) do not get overriden.
+  (when evil-respect-visual-line-mode
+    (evil-define-minor-mode-key 'motion 'visual-line-mode
+      "<up>" 'evil-previous-visual-line
+      "<down>" 'evil-next-visual-line))
   (setq evil-ex-substitute-global t     ; I like my s/../.. to by global by default
         evil-move-cursor-back nil       ; Don't move the block cursor when toggling insert mode
         evil-kill-on-visual-paste nil
