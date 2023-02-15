@@ -552,6 +552,7 @@ Auto-Dark-Emacs is an auto changer between 2 themes, dark/light.
   :init
   (setq auto-dark-light-theme 'ef-light
         auto-dark-dark-theme 'ef-night)
+  ;; TODO this cannot read the appropriate variables when running in daemon mode.
   (if (string-match-p "GNOME" (getenv "XDG_CURRENT_DESKTOP")) ;; Try to enable only for GNOME
       (auto-dark-mode 1)))
 #+end_src
@@ -2455,21 +2456,21 @@ Projectile integration for perspective.el
 
 Package to launch, and manage, detached processes.
 #+begin_src emacs-lisp
-(use-package detached
-  :init
-  (if (executable-find "dtach")
-      (detached-init))
-  :bind
-  (;; Replace `async-shell-command' with `detached-shell-command'
-   ([remap async-shell-command] . detached-shell-command)
-   ;; Replace `compile' with `detached-compile'
-   ([remap compile] . detached-compile)
-   ([remap recompile] . detached-compile-recompile)
-   ;; Replace built in completion of sessions with `consult'
-   ([remap detached-open-session] . detached-consult-session))
-  :custom
-  ((detached-show-output-on-attach t)
-   (detached-terminal-data-command system-type)))
+(if (executable-find "dtach")
+    (use-package detached
+      :init
+      (detached-init)
+      :bind
+      (;; Replace `async-shell-command' with `detached-shell-command'
+       ([remap async-shell-command] . detached-shell-command)
+       ;; Replace `compile' with `detached-compile'
+       ([remap compile] . detached-compile)
+       ([remap recompile] . detached-compile-recompile)
+       ;; Replace built in completion of sessions with `consult'
+       ([remap detached-open-session] . detached-consult-session))
+      :custom
+      ((detached-show-output-on-attach t)
+       (detached-terminal-data-command system-type))))
 #+end_src
 
 * Extras
