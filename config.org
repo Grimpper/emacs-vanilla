@@ -826,7 +826,8 @@ Configure Info mode to separate TAB key from control-i (remember that this probl
   :config
   (custom-set-faces
    '(info-glossary-word ((t (:inherit info-xref :slant italic :underline nil))))
-   '(info-isolated-quote ((t (:inherit info-fixed-pitch))))))
+   '(info-isolated-quote ((t (:inherit info-fixed-pitch))))
+   '(info-isolated-backquote ((t (:inherit info-fixed-pitch))))))
 #+end_src
 
 * TODO Completion
