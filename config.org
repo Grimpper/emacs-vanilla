@@ -1580,7 +1580,7 @@ Org-roam allows for effortless non-hierarchical note-taking: with Org-roam, note
 *Settings:*
 #+begin_src emacs-lisp
 (use-package vterm
-  :straight (:type built-in) ;; This is required in guix to fallback to the system-package.
+  ;; :straight (:type built-in) ;; This is required in guix to fallback to the system-package.
   :hook
   (vterm-mode . hide-mode-line-mode)
   :bind
